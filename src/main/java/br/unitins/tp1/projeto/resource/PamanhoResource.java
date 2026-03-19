@@ -46,11 +46,11 @@ public class PamanhoResource {
         return PamonhaMapper.toResponseDTO(service.findById(id));
     }
 
-    // @GET
-    // @Path("/find/{nome}")
-    // public List<PamonhaResponseDTO> encontrarPorIngredientePrincipal(@PathParam("ingrediente_principal") String ingredientePrincipal) {
-    //     return service.findByIngredientePrincipal(ingredientePrincipal).stream().map(e -> EstadoMapper.toResponseDTO(e)).toList();
-    // }
+    @GET
+    @Path("/find/{ingrediente_principal}")
+    public List<PamonhaResponseDTO> encontrarPorIngredientePrincipal(@PathParam("ingrediente_principal") String ingredientePrincipal) {
+        return service.findByIngredientePrincipal(ingredientePrincipal).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    }
 
     @PUT
     @Path("/{id}")

@@ -26,8 +26,8 @@ public class PamonhaServiceImpl implements PamonhaService{
     }
 
     @Override
-    public Pamonha findByIngredientePrincipal(String ingredientePrincipal) {
-        return (Pamonha) repository.findByIngredientePrincipal(ingredientePrincipal);
+    public List<Pamonha> findByIngredientePrincipal(String ingredientePrincipal) {
+        return repository.findByIngredientePrincipal(ingredientePrincipal);
     }
 
     @Override
