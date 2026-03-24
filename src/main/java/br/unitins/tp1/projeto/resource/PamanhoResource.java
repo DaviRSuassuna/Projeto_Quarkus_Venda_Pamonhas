@@ -47,14 +47,20 @@ public class PamanhoResource {
     }
 
     @GET
-    @Path("/find/{ingrediente_principal}")
-    public List<PamonhaResponseDTO> encontrarPorIngredientePrincipal(@PathParam("ingrediente_principal") String nome) {
-        return service.findByIngredientePrincipal(nome).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    @Path("/find/{sabor-pamonha}")
+    public List<PamonhaResponseDTO> encontrarPorSaborPamonha(@PathParam("sabor-pamonha") String saborPamonha ) {
+        return service.findBySaborPamonha(saborPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    }
+
+    @GET
+    @Path("/find/{tipo-pamonha}")
+    public List<PamonhaResponseDTO> encontrarPorTipoPamonha(@PathParam("tipo-pamonha") String tipoPamonha ) {
+        return service.findByTipoPamonha(tipoPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
     }
 
     @PUT
     @Path("/{id}")
-    public void atualizar(@PathParam("id") long id, PamonhaRequestDTO dto) {
+    public void atualizar(@PathParam("id") Long id, PamonhaRequestDTO dto) {
         service.update(id, dto);
     }
 

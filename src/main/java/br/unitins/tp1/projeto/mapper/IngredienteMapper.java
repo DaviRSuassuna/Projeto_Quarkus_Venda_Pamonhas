@@ -7,7 +7,7 @@ import br.unitins.tp1.projeto.model.UnidadeMedida;
 
 public class IngredienteMapper {
 
-    public static Ingrediente toEnity(IngredienteRequestDTO dto) {
+    public static Ingrediente toEntity(IngredienteRequestDTO dto) {
         
         if(dto == null) {
             return null;

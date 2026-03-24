@@ -9,7 +9,7 @@ public enum UnidadeMedida {
     GRAMA(2L, "Grama"),
     LITRO(3L, "Litro"),
     ML(4L, "Mililitro"),
-    UNIDADE(5L, "Unidade sem valor");
+    UNIDADE(5L, "Unidade");
 
     private final Long ID;
     private final String NOME;

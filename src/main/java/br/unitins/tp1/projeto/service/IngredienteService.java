@@ -13,7 +13,7 @@ public interface IngredienteService {
 
     List<Ingrediente> findByUnidadeMedida(String unidadeMedida);
 
-    List<Ingrediente> findByEstoqueAbaixo(double qtdEstoque);
+    List<Ingrediente> findByEstoqueAbaixo(Double qtdEstoque);
 
     Ingrediente create(Ingrediente dto);
 

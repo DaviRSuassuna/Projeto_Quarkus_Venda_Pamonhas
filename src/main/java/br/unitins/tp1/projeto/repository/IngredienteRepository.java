@@ -10,10 +10,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class IngredienteRepository implements PanacheRepository<Ingrediente> {
 
     public List<Ingrediente> findByUnidadeMedida(String unidadeMedida) {
-        return find("SELECT i FROM Ingrediente i WHERE UPPER(i.unidade_medida) LIKE UPPER(?1)", "%"+unidadeMedida+"%").list();
+        return find("SELECT i FROM Ingrediente i WHERE UPPER(i.unidadeMedida) LIKE UPPER(?1)", "%"+unidadeMedida+"%").list();
     }
 
-    public List<Ingrediente> findByEstoqueAbaixo(double qtdEstoque) {
+    public List<Ingrediente> findByEstoqueAbaixo(Double qtdEstoque) {
         return find("estoque < ?1", qtdEstoque).list();
     }
 }

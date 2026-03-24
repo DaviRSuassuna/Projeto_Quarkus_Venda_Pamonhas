@@ -27,7 +27,7 @@ public class IngredienteServiceImpl implements IngredienteService {
     }
 
     @Override
-    public List<Ingrediente> findByEstoqueAbaixo(double qtdEstoque) {
+    public List<Ingrediente> findByEstoqueAbaixo(Double qtdEstoque) {
         return repository.findByEstoqueAbaixo(qtdEstoque);
     }
 
