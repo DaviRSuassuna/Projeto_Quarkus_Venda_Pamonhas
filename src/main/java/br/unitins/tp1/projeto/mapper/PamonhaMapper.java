@@ -4,6 +4,7 @@ import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
 import br.unitins.tp1.projeto.model.Pamonha;
 import br.unitins.tp1.projeto.model.SaborPamonha;
+import br.unitins.tp1.projeto.model.TipoPamonha;
 
 public class PamonhaMapper {
 
@@ -14,20 +15,30 @@ public class PamonhaMapper {
         }
 
         Pamonha pamonha = new Pamonha();
-        pamonha.setIngredientePrincipal(dto.ingredientePrincipal());
+        pamonha.setNome(dto.nome());
+        pamonha.setDescricao(dto.descricao());;
         pamonha.setPreco(dto.preco());
-        pamonha.setTemQueijo(dto.temQueijo());
+        pamonha.setEstoque(dto.estoque());
         pamonha.setSaborPamonha(SaborPamonha.valueOf(dto.idSaborPamonha()));
+        pamonha.setTipoPamonha(TipoPamonha.valueOf(dto.idTipoPamonha()));
 
         return pamonha;
     }
 
     public static PamonhaResponseDTO toResponseDTO(Pamonha pamonha) {
 
-        if (pamonha == null) {
+        if(pamonha == null) {
             return null;
         }
 
-        return new PamonhaResponseDTO(pamonha.getId(), pamonha.getIngredientePrincipal(), pamonha.getPreco(), pamonha.getTemQueijo(), pamonha.getSaborPamonha());
+        return new PamonhaResponseDTO(
+            pamonha.getId(),
+            pamonha.getNome(),
+            pamonha.getDescricao(),
+            pamonha.getPreco(),
+            pamonha.getEstoque(),
+            pamonha.getSaborPamonha(),
+            pamonha.getTipoPamonha()
+        );
     }
 }

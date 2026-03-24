@@ -48,8 +48,8 @@ public class PamanhoResource {
 
     @GET
     @Path("/find/{ingrediente_principal}")
-    public List<PamonhaResponseDTO> encontrarPorIngredientePrincipal(@PathParam("ingrediente_principal") String ingredientePrincipal) {
-        return service.findByIngredientePrincipal(ingredientePrincipal).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    public List<PamonhaResponseDTO> encontrarPorIngredientePrincipal(@PathParam("ingrediente_principal") String nome) {
+        return service.findByIngredientePrincipal(nome).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
     }
 
     @PUT

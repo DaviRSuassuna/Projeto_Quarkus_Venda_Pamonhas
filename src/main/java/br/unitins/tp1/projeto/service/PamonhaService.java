@@ -11,7 +11,7 @@ public interface PamonhaService {
 
     Pamonha findById(Long id);
 
-    List<Pamonha> findByIngredientePrincipal(String ingredientePrincipal);
+    List<Pamonha> findByTipoPamonha(String tipoPamonha);
 
     List<Pamonha> findBySaborPamonha(String saborPamonha);
 

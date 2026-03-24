@@ -1,0 +1,164 @@
+@startuml diagramaDeClasses
+
+'========================
+' BASE
+'========================
+class Entidade {
+  -id: Long
+}
+
+'========================
+' PESSOA / CLIENTE
+'========================
+abstract class Pessoa {
+  -nome: String
+  -email: String
+  -telefone: String
+}
+
+Entidade <|-- Pessoa
+
+class Cliente {
+  -cpf: String
+  -dataNascimento: LocalDate
+}
+
+Pessoa <|-- Cliente
+
+class Endereco {
+  -rua: String
+  -numero: String
+  -bairro: String
+  -cidade: String
+  -estado: String
+  -cep: String
+}
+
+Cliente "1" o-- "0..*" Endereco
+
+'========================
+' ENUMS
+'========================
+enum SaborPamonha {
+  DOCE
+  SALGADA
+}
+
+enum TipoPamonha {
+  TRADICIONAL
+  COM_QUEIJO
+  GOURMET
+}
+
+enum UnidadeMedida {
+  KG
+  GRAMA
+  LITRO
+  MILILITRO
+  UNIDADE
+}
+
+enum StatusPedido {
+  ABERTO
+  PAGO
+  CANCELADO
+}
+
+'========================
+' PAMONHA
+'========================
+class Pamonha {
+  -nome: String
+  -descricao: String
+  -preco: BigDecimal
+  -estoque: int
+  -sabor: SaborPamonha
+  -tipo: TipoPamonha
+  -tabelaNutricional: TabelaNutricional
+
+  +atualizarTabelaNutricional(): void
+}
+
+Entidade <|-- Pamonha
+
+'========================
+' RECEITA
+'========================
+class Receita {
+  -descricao: String
+
+  +calcularTabelaNutricional(): TabelaNutricional
+}
+
+Pamonha "1" *-- "1" Receita
+
+class ItemReceita {
+  -quantidade: double
+  -unidade: UnidadeMedida
+}
+
+Receita "1" *-- "1..*" ItemReceita
+
+'========================
+' INGREDIENTE
+'========================
+class Ingrediente {
+  -nome: String
+  -precoUnitario: BigDecimal
+  -estoque: double
+  -unidadeEstoque: UnidadeMedida
+}
+
+Entidade <|-- Ingrediente
+
+ItemReceita "1" o-- "1" Ingrediente
+
+'========================
+' TABELA NUTRICIONAL
+'========================
+class TabelaNutricional {
+  -calorias: double
+  -carboidratos: double
+  -proteinas: double
+  -gorduras: double
+}
+
+Ingrediente "1" *-- "1" TabelaNutricional
+Pamonha "1" *-- "1" TabelaNutricional
+
+'========================
+' CUPOM
+'========================
+class CupomDesconto {
+  -codigo: String
+  -valorDesconto: BigDecimal
+  -dataValidade: LocalDate
+  -ativo: boolean
+}
+
+Entidade <|-- CupomDesconto
+
+'========================
+' PEDIDO
+'========================
+class Pedido {
+  -data: LocalDateTime
+  -status: StatusPedido
+  -total: BigDecimal
+}
+
+Entidade <|-- Pedido
+
+Pedido "1" --> "1" Cliente
+Pedido "1" --> "1" Endereco
+Pedido "0..1" o-- "1" CupomDesconto
+
+class ItemPedido {
+  -quantidade: int
+  -precoUnitario: BigDecimal
+}
+
+Pedido "1" *-- "1..*" ItemPedido
+ItemPedido "1" --> "1" Pamonha
+
+@enduml

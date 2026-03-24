@@ -1,74 +1,58 @@
 package br.unitins.tp1.projeto.model;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 
 @Entity
-public class Pamonha {
+public class Pamonha extends DefaultEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String ingredientePrincipal;
-    private Double preco;
-    private Boolean temQueijo;
-    private LocalDateTime dataCadastro;
+    private String nome;
+    private String descricao;
+    private BigDecimal preco;
+    private Integer estoque;
 
     @Column(name = "sabor_pamonha")
     @Enumerated(EnumType.STRING)
     private SaborPamonha saborPamonha;
 
-    @PrePersist
-    private void preencherDataCadastro() {
-        setDataCadastro(LocalDateTime.now());
+    @Column(name = "tipo_pamonha")
+    @Enumerated(EnumType.STRING)
+    private TipoPamonha tipoPamonha;
+
+    public String getNome() {
+        return nome;
     }
 
-    public Long getId() {
-        return id;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public String getIngredientePrincipal() {
-        return ingredientePrincipal;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
-    public void setIngredientePrincipal(String ingredientePrincipal) {
-        this.ingredientePrincipal = ingredientePrincipal;
-    }
-
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
-    public Boolean getTemQueijo() {
-        return temQueijo;
+    public Integer getEstoque() {
+        return estoque;
     }
 
-    public void setTemQueijo(Boolean temQueijo) {
-        this.temQueijo = temQueijo;
-    }
-
-    public LocalDateTime getDataCadastro() {
-        return dataCadastro;
-    }
-
-    public void setDataCadastro(LocalDateTime dataCadastro) {
-        this.dataCadastro = dataCadastro;
+    public void setEstoque(Integer estoque) {
+        this.estoque = estoque;
     }
 
     public SaborPamonha getSaborPamonha() {
@@ -77,5 +61,15 @@ public class Pamonha {
 
     public void setSaborPamonha(SaborPamonha saborPamonha) {
         this.saborPamonha = saborPamonha;
-    }  
+    }
+
+    public TipoPamonha getTipoPamonha() {
+        return tipoPamonha;
+    }
+
+    public void setTipoPamonha(TipoPamonha tipoPamonha) {
+        this.tipoPamonha = tipoPamonha;
+    }
+
+
 }
