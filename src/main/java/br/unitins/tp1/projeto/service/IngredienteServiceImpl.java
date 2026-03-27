@@ -8,6 +8,7 @@ import br.unitins.tp1.projeto.model.UnidadeMedida;
 import br.unitins.tp1.projeto.repository.IngredienteRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class IngredienteServiceImpl implements IngredienteService {
@@ -37,12 +38,14 @@ public class IngredienteServiceImpl implements IngredienteService {
     }
 
     @Override
+    @Transactional
     public Ingrediente create(Ingrediente dto) {
         repository.persist(dto);
         return dto;
     }
 
     @Override
+    @Transactional
     public void update(Long id, IngredienteRequestDTO dto) {
         Ingrediente ingredienteUpdate = findById(id);
         ingredienteUpdate.setNome(dto.nome());
@@ -54,6 +57,7 @@ public class IngredienteServiceImpl implements IngredienteService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
         

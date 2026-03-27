@@ -9,6 +9,7 @@ import br.unitins.tp1.projeto.model.TipoPamonha;
 import br.unitins.tp1.projeto.repository.PamonhaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class PamonhaServiceImpl implements PamonhaService{
@@ -37,12 +38,14 @@ public class PamonhaServiceImpl implements PamonhaService{
     }
 
     @Override
+    @Transactional
     public Pamonha create(Pamonha dto) {
         repository.persist(dto);
         return dto;
     }
 
     @Override
+    @Transactional
     public void update(Long id, PamonhaRequestDTO dto) {
         Pamonha pamonhaUpdate = findById(id);
         pamonhaUpdate.setNome(dto.nome());
@@ -55,6 +58,7 @@ public class PamonhaServiceImpl implements PamonhaService{
     }
     
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);       
     } 

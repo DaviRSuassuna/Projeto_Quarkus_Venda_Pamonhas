@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 @JsonFormat(shape = Shape.OBJECT)
 public enum TipoPamonha {
     TRADICIONAL(1L, "Tradicional"),
-    COM_QUEIJO(2L, "Com queijo"),
+    COM_QUEIJO(2L, "Com_queijo"),
     GOURMET(3L, "Gourmet");
 
     private final Long ID;

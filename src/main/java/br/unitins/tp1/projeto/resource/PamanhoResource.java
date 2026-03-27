@@ -47,14 +47,14 @@ public class PamanhoResource {
     }
 
     @GET
-    @Path("/find/{saborPamonha}")
-    public List<PamonhaResponseDTO> encontrarPorSaborPamonha(@PathParam("saborPamonha") String saborPamonha ) {
+    @Path("/find/sabor-pamonha/{sabor-pamonha}")
+    public List<PamonhaResponseDTO> encontrarPorSaborPamonha(@PathParam("sabor-pamonha") String saborPamonha ) {
         return service.findBySaborPamonha(saborPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
     }
 
     @GET
-    @Path("/find/{tipoPamonha}")
-    public List<PamonhaResponseDTO> encontrarPorTipoPamonha(@PathParam("tipoPamonha") String tipoPamonha ) {
+    @Path("/find/tipo-pamonha/{tipo-pamonha}")
+    public List<PamonhaResponseDTO> encontrarPorTipoPamonha(@PathParam("tipo-pamonha") String tipoPamonha ) {
         return service.findByTipoPamonha(tipoPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
     }
 
