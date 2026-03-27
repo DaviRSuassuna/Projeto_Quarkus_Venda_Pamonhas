@@ -47,14 +47,14 @@ public class IngredienteResource {
     }
 
     @GET
-    @Path("/find/{estoque-abaixo}")
+    @Path("/find/estoque-abaixo/{estoque-abaixo}")
     public List<IngredienteResponseDTO> encontrarPorEstoqueAbaixo(@PathParam("estoque-abaixo") Double qtdEstoque ) {
         return service.findByEstoqueAbaixo(qtdEstoque).stream().map(i -> IngredienteMapper.toResponseDTO(i)).toList();
     }
 
     @GET
-    @Path("/find/{unidade-medida}")
-    public List<IngredienteResponseDTO> encontrarPorUnidadeMedida(@PathParam("unidade_medida") String unidadeMedida ) {
+    @Path("/find/unidade-medida/{unidade-medida}")
+    public List<IngredienteResponseDTO> encontrarPorUnidadeMedida(@PathParam("unidade-medida") String unidadeMedida ) {
         return service.findByUnidadeMedida(unidadeMedida).stream().map(i -> IngredienteMapper.toResponseDTO(i)).toList();
     }
 
