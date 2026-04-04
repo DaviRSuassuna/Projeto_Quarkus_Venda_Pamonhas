@@ -2,12 +2,18 @@ package br.unitins.tp1.projeto.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "pamonha")
 public class Pamonha extends DefaultEntity {
 
     private String nome;
@@ -22,6 +28,13 @@ public class Pamonha extends DefaultEntity {
     @Column(name = "tipo_pamonha")
     @Enumerated(EnumType.STRING)
     private TipoPamonha tipoPamonha;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receita_id")
+    private Receita receita;
+
+    @Embedded
+    private TabelaNutricional tabelaNutricional;
 
     public String getNome() {
         return nome;
@@ -71,5 +84,22 @@ public class Pamonha extends DefaultEntity {
         this.tipoPamonha = tipoPamonha;
     }
 
+    public TabelaNutricional getTabelaNutricional() {
+        return tabelaNutricional;
+    }
+
+    public void setTabelaNutricional(TabelaNutricional tabelaNutricional) {
+        this.tabelaNutricional = tabelaNutricional;
+    }
+
+    public Receita getReceita() {
+        return receita;
+    }
+
+    public void setReceita(Receita receita) {
+        this.receita = receita;
+    }
+
+    
 
 }

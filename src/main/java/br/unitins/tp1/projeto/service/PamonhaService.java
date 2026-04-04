@@ -3,6 +3,7 @@ package br.unitins.tp1.projeto.service;
 import java.util.List;
 
 import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
+import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
 import br.unitins.tp1.projeto.model.Pamonha;
 
 public interface PamonhaService {
@@ -15,7 +16,7 @@ public interface PamonhaService {
 
     List<Pamonha> findBySaborPamonha(String saborPamonha);
 
-    Pamonha create(Pamonha dto);
+    PamonhaResponseDTO create(PamonhaRequestDTO dto);
 
     void update(Long id, PamonhaRequestDTO dto);
 

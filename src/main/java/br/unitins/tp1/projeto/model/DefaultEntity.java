@@ -2,6 +2,7 @@ package br.unitins.tp1.projeto.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ public class DefaultEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
 
     @PrePersist

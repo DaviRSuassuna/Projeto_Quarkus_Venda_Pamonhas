@@ -8,5 +8,6 @@ public record PamonhaRequestDTO(
     BigDecimal preco, 
     Integer estoque, 
     Long idSaborPamonha, 
-    Long idTipoPamonha
+    Long idTipoPamonha,
+    ReceitaRequestDTO receita
 ) {}

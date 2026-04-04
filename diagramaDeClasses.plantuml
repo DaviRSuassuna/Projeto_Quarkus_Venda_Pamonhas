@@ -117,10 +117,15 @@ ItemReceita "1" o-- "1" Ingrediente
 ' TABELA NUTRICIONAL
 '========================
 class TabelaNutricional {
-  -calorias: double
+  -valorEnergetico: double
   -carboidratos: double
+  -acucaresTotais: double
   -proteinas: double
-  -gorduras: double
+  -gordurasTotal: double
+  -gordurasSaturadas: double
+  -gordurasTrans: double
+  -fibrasAlimentares: double
+  -sodio: double
 }
 
 Ingrediente "1" *-- "1" TabelaNutricional

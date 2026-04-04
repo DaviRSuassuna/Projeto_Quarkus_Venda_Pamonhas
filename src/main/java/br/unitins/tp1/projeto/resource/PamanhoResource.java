@@ -5,7 +5,6 @@ import java.util.List;
 import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
 import br.unitins.tp1.projeto.mapper.PamonhaMapper;
-import br.unitins.tp1.projeto.model.Pamonha;
 import br.unitins.tp1.projeto.service.PamonhaService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -31,8 +30,7 @@ public class PamanhoResource {
     @POST
     @Transactional
     public PamonhaResponseDTO incluir(PamonhaRequestDTO dto) {
-        Pamonha pamonha = service.create(PamonhaMapper.toEntity(dto));
-        return PamonhaMapper.toResponseDTO(pamonha);
+        return service.create(dto);
     }
 
     @GET

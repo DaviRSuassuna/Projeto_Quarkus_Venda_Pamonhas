@@ -1,8 +1,16 @@
 package br.unitins.tp1.projeto.mapper;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import br.unitins.tp1.projeto.dto.ItemReceitaRequestDTO;
+import br.unitins.tp1.projeto.dto.ItemReceitaResponseDTO;
 import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
+import br.unitins.tp1.projeto.dto.ReceitaResponseDTO;
+import br.unitins.tp1.projeto.model.ItemReceita;
 import br.unitins.tp1.projeto.model.Pamonha;
+import br.unitins.tp1.projeto.model.Receita;
 import br.unitins.tp1.projeto.model.SaborPamonha;
 import br.unitins.tp1.projeto.model.TipoPamonha;
 
@@ -21,14 +29,53 @@ public class PamonhaMapper {
         pamonha.setEstoque(dto.estoque());
         pamonha.setSaborPamonha(SaborPamonha.valueOf(dto.idSaborPamonha()));
         pamonha.setTipoPamonha(TipoPamonha.valueOf(dto.idTipoPamonha()));
+        
+        if (dto.receita() != null) {
+
+            Receita receita = new Receita();
+            receita.setDescricao(dto.receita().descricao());
+
+            List<ItemReceita> itens = new ArrayList<>();
+
+            for (ItemReceitaRequestDTO itemDTO : dto.receita().itens()) {
+                
+                ItemReceita item = new ItemReceita();
+
+                item.setQuantidade(itemDTO.quantidade());
+                item.setUnidadeMedida(itemDTO.unidadeMedida());
+
+                itens.add(item);
+            }
+
+            receita.setItens(itens);
+            pamonha.setReceita(receita);
+        }
 
         return pamonha;
     }
 
     public static PamonhaResponseDTO toResponseDTO(Pamonha pamonha) {
 
-        if(pamonha == null) {
-            return null;
+        if(pamonha == null) return null;
+
+        Receita receita = pamonha.getReceita();
+
+        ReceitaResponseDTO receitaDTO = null;
+
+        if (receita != null) {
+            
+            @SuppressWarnings("null") //Para não mostrar o erro, já que esse método espera um valor que nunca pode ser nulo, porém há um valor que talvez possa ser
+            List<ItemReceitaResponseDTO> itensDTO = receita.getItens().stream()
+                .map(item -> new ItemReceitaResponseDTO(
+                    item.getQuantidade(),
+                    item.getUnidadeMedida(),
+                    item.getIngrediente().getNome()
+                )).toList();
+
+                receitaDTO = new ReceitaResponseDTO(
+                    receita.getDescricao(),
+                    itensDTO
+                );
         }
 
         return new PamonhaResponseDTO(
@@ -38,7 +85,8 @@ public class PamonhaMapper {
             pamonha.getPreco(),
             pamonha.getEstoque(),
             pamonha.getSaborPamonha(),
-            pamonha.getTipoPamonha()
+            pamonha.getTipoPamonha(),
+            receitaDTO
         );
     }
 }

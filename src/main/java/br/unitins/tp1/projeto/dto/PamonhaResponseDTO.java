@@ -12,5 +12,6 @@ public record PamonhaResponseDTO(
     BigDecimal preco, 
     Integer estoque, 
     SaborPamonha saborPamonha, 
-    TipoPamonha tipoPamonha
+    TipoPamonha tipoPamonha,
+    ReceitaResponseDTO receita
 ) {}
