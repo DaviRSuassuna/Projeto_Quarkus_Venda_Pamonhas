@@ -37,3 +37,13 @@ INSERT INTO item_receita (id, quantidade, unidade_medida, receita_id, ingredient
 INSERT INTO pamonha (id, nome, descricao, preco, estoque, sabor_pamonha, tipo_pamonha, receita_id) VALUES
 (1,'Pamonha Doce', 'Pamonha tradicional doce', 8.50, 50, 'DOCE', 'TRADICIONAL', 1),
 (2,'Pamonha Salgada com Queijo', 'Pamonha salgada recheada com queijo', 10.00, 30, 'SALGADA', 'COM_QUEIJO', 2);
+
+INSERT INTO cupom_desconto (id, codigo, valor_desconto, data_validade, ativo)
+VALUES 
+(1, 'DESC10', 10.00, '2026-12-31', true),
+(2, 'DESC20', 20.00, '2026-10-15', true),
+(3, 'PROMO5', 5.50, '2026-08-01', true),
+(4, 'OLD15', 15.00, '2024-01-01', false),
+(5, 'BLACK50', 50.00, '2025-11-25', false),
+(6, 'SUPER30', 30.00, '2026-09-10', true),
+(7, 'MINI2', 2.00, '2026-07-01', true);

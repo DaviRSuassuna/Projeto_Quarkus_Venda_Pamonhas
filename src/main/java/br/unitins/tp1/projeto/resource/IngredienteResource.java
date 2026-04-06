@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.MediaType;
 public class IngredienteResource {
 
     @Inject
-
     IngredienteService service;
 
     @POST
