@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import br.unitins.tp1.projeto.dto.ClienteRequestDTO;
 import br.unitins.tp1.projeto.dto.ClienteResponseDTO;
+import br.unitins.tp1.projeto.dto.EnderecoDTO;
 import br.unitins.tp1.projeto.model.Cliente;
 import br.unitins.tp1.projeto.model.Endereco;
 
@@ -42,6 +43,18 @@ public class ClienteMapper {
 
         if (cliente == null) return null;
 
+        List<EnderecoDTO> enderecoDTO = cliente.getEnderecos()
+            .stream()
+            .map(e -> new EnderecoDTO(
+                e.getRua(),
+                e.getNumero(),
+                e.getBairro(),
+                e.getCidade(),
+                e.getEstado(),
+                e.getCep()
+            ))
+            .toList();
+
         return new ClienteResponseDTO(
             cliente.getId(),
             cliente.getNome(),
@@ -49,7 +62,7 @@ public class ClienteMapper {
             cliente.getTelefone(),
             cliente.getCpf(),
             cliente.getDataNascimento(),
-            EnderecoDTO
+            enderecoDTO
         );
     }
 }
