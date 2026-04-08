@@ -3,8 +3,9 @@
 '========================
 ' BASE
 '========================
-class Entidade {
+abstract class DefaultEntity <<MappedSuperclass>> {
   -id: Long
+  -dataCadastro: LocalDateTime
 }
 
 '========================
@@ -16,7 +17,7 @@ abstract class Pessoa {
   -telefone: String
 }
 
-Entidade <|-- Pessoa
+DefaultEntity <|-- Pessoa
 
 class Cliente {
   -cpf: String
@@ -25,8 +26,8 @@ class Cliente {
 
 Pessoa <|-- Cliente
 
-' Endereco agora é embeddable
-class Endereco {
+' Endereco embutido (não é entidade)
+class Endereco <<Embeddable>> {
   -rua: String
   -numero: String
   -bairro: String
@@ -35,8 +36,8 @@ class Endereco {
   -cep: String
 }
 
-' Cliente tem uma coleção de endereços (agregação)
-Cliente "1" o-- "0..*" Endereco
+' Composição (Endereco não existe sem Cliente)
+Cliente "1" *-- "0..*" Endereco
 
 '========================
 ' ENUMS
@@ -81,7 +82,7 @@ class Pamonha {
   +atualizarTabelaNutricional(): void
 }
 
-Entidade <|-- Pamonha
+DefaultEntity <|-- Pamonha
 
 '========================
 ' RECEITA
@@ -111,7 +112,7 @@ class Ingrediente {
   -unidadeEstoque: UnidadeMedida
 }
 
-Entidade <|-- Ingrediente
+DefaultEntity <|-- Ingrediente
 
 ItemReceita "1" o-- "1" Ingrediente
 
@@ -143,7 +144,7 @@ class CupomDesconto {
   -ativo: boolean
 }
 
-Entidade <|-- CupomDesconto
+DefaultEntity <|-- CupomDesconto
 
 '========================
 ' PEDIDO
@@ -155,7 +156,7 @@ class Pedido {
   -enderecoEntrega: Endereco
 }
 
-Entidade <|-- Pedido
+DefaultEntity <|-- Pedido
 
 Pedido "1" --> "1" Cliente
 Pedido "1" *-- "1" Endereco

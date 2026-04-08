@@ -4,10 +4,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,7 +20,8 @@ public class Cliente extends Pessoa{
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ElementCollection
+    @CollectionTable(name = "cliente_enderecos", joinColumns = @JoinColumn(name = "cliente_id"))
     private List<Endereco> enderecos = new ArrayList<>();
 
     public String getCpf() {

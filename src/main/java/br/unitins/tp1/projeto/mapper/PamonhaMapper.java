@@ -64,7 +64,6 @@ public class PamonhaMapper {
 
         if (receita != null) {
             
-            @SuppressWarnings("null") //Para não mostrar o erro, já que esse método espera um valor que nunca pode ser nulo, porém há um valor que talvez possa ser
             List<ItemReceitaResponseDTO> itensDTO = receita.getItens().stream()
                 .map(item -> new ItemReceitaResponseDTO(
                     item.getQuantidade(),

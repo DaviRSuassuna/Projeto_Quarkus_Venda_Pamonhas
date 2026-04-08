@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/pamonhas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class PamanhoResource {
+public class PamonhaResource {
 
     @Inject
 

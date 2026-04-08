@@ -47,3 +47,14 @@ VALUES
 (5, 'BLACK50', 50.00, '2025-11-25', false),
 (6, 'SUPER30', 30.00, '2026-09-10', true),
 (7, 'MINI2', 2.00, '2026-07-01', true);
+
+INSERT INTO cliente (id, nome, email, telefone, cpf, data_nascimento) VALUES
+(1, 'João Silva', 'joao@gmail.com', '63999990001', '11111111111', '1990-05-10'),
+(2, 'Maria Souza', 'maria@gmail.com', '63999990002', '22222222222', '1995-08-20'),
+(3, 'Carlos Lima', 'carlos@gmail.com', '63999990003', '33333333333', '1988-12-01');
+
+INSERT INTO cliente_enderecos (cliente_id, rua, numero, bairro, cidade, estado, cep) VALUES
+(1, 'Rua A', '100', 'Centro', 'Palmas', 'TO', '77000000'),
+(1, 'Rua B', '200', 'Plano Diretor', 'Palmas', 'TO', '77001000'),
+(2, 'Av. JK', '300', 'Centro', 'Palmas', 'TO', '77002000'),
+(3, 'Rua das Flores', '400', 'Jardim Aureny', 'Palmas', 'TO', '77003000');

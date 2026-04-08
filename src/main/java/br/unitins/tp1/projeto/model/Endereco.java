@@ -3,7 +3,7 @@ package br.unitins.tp1.projeto.model;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class Endereco extends DefaultEntity{
+public class Endereco {
 
     private String rua;
     private String numero;
