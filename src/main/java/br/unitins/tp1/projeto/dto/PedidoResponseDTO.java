@@ -10,5 +10,6 @@ public record PedidoResponseDTO(
     String status,
     LocalDateTime data,
     BigDecimal total,
+    String codigoCupom,
     List<ItemPedidoResponseDTO> itens
 ) {}

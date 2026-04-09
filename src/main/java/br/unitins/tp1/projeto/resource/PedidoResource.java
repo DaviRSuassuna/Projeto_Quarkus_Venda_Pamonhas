@@ -28,18 +28,12 @@ public class PedidoResource {
     @Inject
     PedidoService service;
 
-    // =========================
-    // CREATE
-    // =========================
     @POST
     @Transactional
     public PedidoResponseDTO incluir(PedidoRequestDTO dto) {
         return service.create(dto);
     }
 
-    // =========================
-    // GET ALL
-    // =========================
     @GET
     public List<PedidoResponseDTO> buscarTodos() {
         return service.findAll()
@@ -48,18 +42,12 @@ public class PedidoResource {
                 .toList();
     }
 
-    // =========================
-    // GET BY ID
-    // =========================
     @GET
     @Path("/{id}")
     public PedidoResponseDTO encontrarPorId(@PathParam("id") long id) {
         return PedidoMapper.toResponseDTO(service.findById(id));
     }
 
-    // =========================
-    // FIND BY CLIENTE NOME
-    // =========================
     @GET
     @Path("/find/cliente-nome/{nome}")
     public List<PedidoResponseDTO> encontrarPorClienteNome(@PathParam("nome") String nome) {
@@ -69,9 +57,6 @@ public class PedidoResource {
                 .toList();
     }
 
-    // =========================
-    // FIND BY STATUS
-    // =========================
     @GET
     @Path("/find/status/{idStatus}")
     public List<PedidoResponseDTO> encontrarPorStatus(@PathParam("idStatus") Long idStatus) {
@@ -81,9 +66,6 @@ public class PedidoResource {
                 .toList();
     }
 
-    // =========================
-    // FIND BY CLIENTE ID
-    // =========================
     @GET
     @Path("/find/cliente/{idCliente}")
     public List<PedidoResponseDTO> encontrarPorClienteId(@PathParam("idCliente") Long idCliente) {
@@ -93,9 +75,6 @@ public class PedidoResource {
                 .toList();
     }
 
-    // =========================
-    // FIND BY DATA
-    // =========================
     @GET
     @Path("/find/data/{data}")
     public List<PedidoResponseDTO> encontrarPorData(@PathParam("data") String data) {
@@ -105,18 +84,12 @@ public class PedidoResource {
                 .toList();
     }
 
-    // =========================
-    // UPDATE
-    // =========================
     @PUT
     @Path("/{id}")
     public void atualizar(@PathParam("id") Long id, PedidoRequestDTO dto) {
         service.update(id, dto);
     }
 
-    // =========================
-    // DELETE
-    // =========================
     @DELETE
     @Path("/{id}")
     public void delete(@PathParam("id") long id) {

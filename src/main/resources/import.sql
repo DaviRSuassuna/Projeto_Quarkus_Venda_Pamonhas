@@ -59,10 +59,15 @@ INSERT INTO cliente_enderecos (cliente_id, rua, numero, bairro, cidade, estado, 
 (2, 'Av. JK', '300', 'Centro', 'Palmas', 'TO', '77002000'),
 (3, 'Rua das Flores', '400', 'Jardim Aureny', 'Palmas', 'TO', '77003000');
 
-INSERT INTO pedido (id, data, status, total, cliente_id, data_cadastro) VALUES
-(1, NOW(), 'ABERTO', 17.00, 1, NOW()),
-(2, NOW(), 'PAGO', 10.00, 2, NOW()),
-(3, NOW(), 'CANCELADO', 25.50, 3, NOW());
+INSERT INTO pedido (id, data, status, total, cliente_id, cupom_id, data_cadastro) VALUES
+-- Pedido 1 → usa cupom DESC10 (id 1)
+(1, NOW(), 'ABERTO', 7.00, 1, 1, NOW()),
+
+-- Pedido 2 → sem cupom
+(2, NOW(), 'PAGO', 10.00, 2, NULL, NOW()),
+
+-- Pedido 3 → usa cupom PROMO5 (id 3)
+(3, NOW(), 'CANCELADO', 20.00, 3, 3, NOW());
 
 INSERT INTO item_pedido (id, quantidade, preco_unitario, pedido_id, pamonha_id, data_cadastro) VALUES
 -- Pedido 1 → 2 pamonhas doces (id 1)

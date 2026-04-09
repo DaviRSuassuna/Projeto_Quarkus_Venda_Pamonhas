@@ -1,6 +1,7 @@
 package br.unitins.tp1.projeto.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,9 +14,11 @@ import br.unitins.tp1.projeto.model.ItemPedido;
 import br.unitins.tp1.projeto.model.Cliente;
 import br.unitins.tp1.projeto.model.Pamonha;
 import br.unitins.tp1.projeto.model.StatusPedido;
+import br.unitins.tp1.projeto.model.CupomDesconto;
 import br.unitins.tp1.projeto.repository.PedidoRepository;
 import br.unitins.tp1.projeto.repository.ClienteRepository;
 import br.unitins.tp1.projeto.repository.PamonhaRepository;
+import br.unitins.tp1.projeto.repository.CupomDescontoRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,9 +36,8 @@ public class PedidoServiceImpl implements PedidoService {
     @Inject
     PamonhaRepository pamonhaRepository;
 
-    // =========================
-    // CONSULTAS
-    // =========================
+    @Inject
+    CupomDescontoRepository cupomRepository;
 
     @Override
     public List<Pedido> findAll() {
@@ -67,17 +69,13 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoRepository.findByData(data);
     }
 
-    // =========================
-    // CREATE
-    // =========================
-
     @Override
     @Transactional
     public PedidoResponseDTO create(PedidoRequestDTO dto) {
 
         Pedido pedido = PedidoMapper.toEntity(dto);
 
-        // 🔹 Buscar cliente
+        // 🔹 Cliente
         Cliente cliente = clienteRepository.findById(dto.idCliente());
         if (cliente == null) {
             throw new RuntimeException("Cliente não encontrado");
@@ -88,7 +86,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         BigDecimal total = BigDecimal.ZERO;
 
-        // 🔹 Montar itens
+        // 🔹 Itens
         for (int i = 0; i < pedido.getItens().size(); i++) {
 
             ItemPedido item = pedido.getItens().get(i);
@@ -101,7 +99,6 @@ public class PedidoServiceImpl implements PedidoService {
             }
 
             item.setPamonha(pamonha);
-            item.setPedido(pedido);
             item.setPrecoUnitario(pamonha.getPreco());
 
             BigDecimal subtotal = pamonha.getPreco()
@@ -110,16 +107,39 @@ public class PedidoServiceImpl implements PedidoService {
             total = total.add(subtotal);
         }
 
+        // 🔥 Cupom de desconto
+        if (dto.codigoCupom() != null && !dto.codigoCupom().isBlank()) {
+
+            CupomDesconto cupom = cupomRepository.findByCodigo(dto.codigoCupom());
+
+            if (cupom == null) {
+                throw new RuntimeException("Cupom não encontrado");
+            }
+
+            if (!cupom.getAtivo()) {
+                throw new RuntimeException("Cupom inativo");
+            }
+
+            if (cupom.getDataValidade().isBefore(LocalDate.now())) {
+                throw new RuntimeException("Cupom expirado");
+            }
+
+            pedido.setCupom(cupom);
+
+            total = total.subtract(cupom.getValorDesconto());
+
+            // evita total negativo
+            if (total.compareTo(BigDecimal.ZERO) < 0) {
+                total = BigDecimal.ZERO;
+            }
+        }
+
         pedido.setTotal(total);
 
         pedidoRepository.persist(pedido);
 
         return PedidoMapper.toResponseDTO(pedido);
     }
-
-    // =========================
-    // UPDATE
-    // =========================
 
     @Override
     @Transactional
@@ -135,10 +155,6 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedidoRepository.persist(pedido);
     }
-
-    // =========================
-    // DELETE
-    // =========================
 
     @Override
     @Transactional

@@ -14,9 +14,6 @@ import br.unitins.tp1.projeto.model.StatusPedido;
 
 public class PedidoMapper {
 
-    // =========================
-    // TO ENTITY
-    // =========================
     public static Pedido toEntity(PedidoRequestDTO dto) {
 
         if (dto == null) return null;
@@ -24,8 +21,9 @@ public class PedidoMapper {
         Pedido pedido = new Pedido();
 
         pedido.setStatus(StatusPedido.valueOf(dto.idStatusPedido()));
-
+        pedido.setData(java.time.LocalDateTime.now());
         List<ItemPedido> itens = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
 
         if (dto.itens() != null) {
 
@@ -34,23 +32,25 @@ public class PedidoMapper {
                 ItemPedido item = new ItemPedido();
 
                 item.setQuantidade(itemDTO.quantidade());
+                item.setPedido(pedido);
 
-                // ❗ NÃO seta pamonha aqui
-                // ❗ NÃO seta preço aqui
-                // ❗ NÃO seta pedido aqui
+                if (item.getPrecoUnitario() != null) {
+                    BigDecimal subtotal = item.getPrecoUnitario()
+                            .multiply(BigDecimal.valueOf(item.getQuantidade()));
+
+                    total = total.add(subtotal);
+                }
 
                 itens.add(item);
             }
         }
 
         pedido.setItens(itens);
+        pedido.setTotal(total);
 
         return pedido;
     }
 
-    // =========================
-    // TO RESPONSE
-    // =========================
     public static PedidoResponseDTO toResponseDTO(Pedido pedido) {
 
         if (pedido == null) return null;
@@ -80,6 +80,7 @@ public class PedidoMapper {
             pedido.getStatus().getNOME(),
             pedido.getData(),
             pedido.getTotal() != null ? pedido.getTotal() : BigDecimal.ZERO,
+            pedido.getCupom() != null ? pedido.getCupom().getCodigo() : null,
             itensDTO
         );
     }

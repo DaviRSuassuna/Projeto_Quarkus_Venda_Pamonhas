@@ -26,16 +26,13 @@ public class Pedido extends DefaultEntity {
 
     private BigDecimal total;
 
-    // Cliente do pedido
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    // Endereço de entrega (snapshot)
     @ElementCollection
     private List<Endereco> enderecoEntrega = new ArrayList<>();
 
-    // Itens do pedido
     @OneToMany(
         mappedBy = "pedido",
         cascade = CascadeType.ALL,
@@ -44,9 +41,17 @@ public class Pedido extends DefaultEntity {
     )
     private List<ItemPedido> itens = new ArrayList<>();
 
-    // =========================
-    // GETTERS E SETTERS
-    // =========================
+    @ManyToOne
+    @JoinColumn(name = "cupom_id")
+    private CupomDesconto cupom;
+
+    public CupomDesconto getCupom() {
+        return cupom;
+    }
+
+    public void setCupom(CupomDesconto cupom) {
+        this.cupom = cupom;
+    }
 
     public LocalDateTime getData() {
         return data;

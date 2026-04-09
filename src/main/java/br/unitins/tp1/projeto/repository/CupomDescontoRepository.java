@@ -10,6 +10,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class CupomDescontoRepository implements PanacheRepository<CupomDesconto>{
 
+    public CupomDesconto findByCodigo(String codigo) {
+        return find("codigo", codigo).firstResult();
+    }
+
     public List<CupomDesconto> findByAtivo() {
         return find("SELECT cd FROM CupomDesconto cd WHERE cd.ativo = true").list();
     }
