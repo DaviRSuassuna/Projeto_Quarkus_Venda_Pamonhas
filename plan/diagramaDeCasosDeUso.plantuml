@@ -1,0 +1,52 @@
+@startuml diagramaDeCasosDeUso
+left to right direction
+
+actor Cliente
+actor Administrador
+
+rectangle Sistema {
+
+  ' CLIENTE
+  Cliente --> (Realizar Pedido)
+  Cliente --> (Consultar Pedidos)
+  Cliente --> (Gerenciar Endereços)
+
+  (Realizar Pedido) --> (Adicionar Item)
+  (Realizar Pedido) --> (Remover Item)
+  (Realizar Pedido) --> (Aplicar Cupom)
+  (Realizar Pedido) --> (Definir Endereço de Entrega)
+
+  ' PEDIDO
+  (Realizar Pedido) --> (Calcular Total)
+  (Realizar Pedido) --> (Alterar Status Pedido)
+
+  ' ADMIN
+  Administrador --> (Gerenciar Clientes)
+  Administrador --> (Gerenciar Pamonhas)
+  Administrador --> (Gerenciar Ingredientes)
+  Administrador --> (Gerenciar Cupons)
+
+  ' Pamonha
+  (Gerenciar Pamonhas) --> (Cadastrar Pamonha)
+  (Gerenciar Pamonhas) --> (Atualizar Pamonha)
+  (Gerenciar Pamonhas) --> (Remover Pamonha)
+
+  ' Receita
+  (Gerenciar Pamonhas) --> (Gerenciar Receita)
+  (Gerenciar Receita) --> (Adicionar Ingrediente)
+  (Gerenciar Receita) --> (Remover Ingrediente)
+  (Gerenciar Receita) --> (Calcular Tabela Nutricional)
+
+  ' Ingredientes
+  (Gerenciar Ingredientes) --> (Cadastrar Ingrediente)
+  (Gerenciar Ingredientes) --> (Atualizar Ingrediente)
+  (Gerenciar Ingredientes) --> (Controlar Estoque)
+
+  ' Cupom
+  (Gerenciar Cupons) --> (Cadastrar Cupom)
+  (Gerenciar Cupons) --> (Validar Cupom)
+  (Gerenciar Cupons) --> (Ativar/Inativar Cupom)
+
+}
+
+@enduml
