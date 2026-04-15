@@ -1,16 +1,10 @@
 @startuml diagramaDeClasses
 
-'========================
-' BASE
-'========================
 abstract class DefaultEntity <<MappedSuperclass>> {
   -id: Long
   -dataCadastro: LocalDateTime
 }
 
-'========================
-' PESSOA / CLIENTE
-'========================
 abstract class Pessoa {
   -nome: String
   -email: String
@@ -26,8 +20,7 @@ class Cliente {
 
 Pessoa <|-- Cliente
 
-' Endereco embutido (não é entidade)
-class Endereco <<Embeddable>> {
+class EnderecoCliente <<Embeddable>> {
   -rua: String
   -numero: String
   -bairro: String
@@ -36,12 +29,17 @@ class Endereco <<Embeddable>> {
   -cep: String
 }
 
-' Composição (Endereco não existe sem Cliente)
-Cliente "1" *-- "0..*" Endereco
+class EnderecoEntrega <<Embeddable>> {
+  -rua: String
+  -numero: String
+  -bairro: String
+  -cidade: String
+  -estado: String
+  -cep: String
+}
 
-'========================
-' ENUMS
-'========================
+Cliente "1" *-- "0..*" EnderecoCliente
+
 enum SaborPamonha {
   DOCE
   SALGADA
@@ -67,16 +65,11 @@ enum StatusPedido {
   CANCELADO
 }
 
-'========================
-' PAMONHA
-'========================
 class Pamonha {
   -nome: String
   -descricao: String
   -preco: BigDecimal
   -estoque: int
-  -sabor: SaborPamonha
-  -tipo: TipoPamonha
   -tabelaNutricional: TabelaNutricional
 
   +atualizarTabelaNutricional(): void
@@ -84,9 +77,9 @@ class Pamonha {
 
 DefaultEntity <|-- Pamonha
 
-'========================
-' RECEITA
-'========================
+Pamonha --> SaborPamonha
+Pamonha --> TipoPamonha
+
 class Receita {
   -descricao: String
 
@@ -97,28 +90,24 @@ Pamonha "1" *-- "1" Receita
 
 class ItemReceita {
   -quantidade: double
-  -unidade: UnidadeMedida
 }
 
 Receita "1" *-- "1..*" ItemReceita
 
-'========================
-' INGREDIENTE
-'========================
+ItemReceita --> UnidadeMedida
+
 class Ingrediente {
   -nome: String
   -precoUnitario: BigDecimal
   -estoque: double
-  -unidadeEstoque: UnidadeMedida
 }
 
 DefaultEntity <|-- Ingrediente
 
 ItemReceita "1" o-- "1" Ingrediente
 
-'========================
-' TABELA NUTRICIONAL
-'========================
+Ingrediente --> UnidadeMedida
+
 class TabelaNutricional {
   -valorEnergetico: double
   -carboidratos: double
@@ -131,12 +120,9 @@ class TabelaNutricional {
   -sodio: double
 }
 
-Ingrediente "1" *-- "1" TabelaNutricional
-Pamonha "1" *-- "1" TabelaNutricional
+Ingrediente "1" --> "1" TabelaNutricional
+Pamonha "1" --> "1" TabelaNutricional
 
-'========================
-' CUPOM
-'========================
 class CupomDesconto {
   -codigo: String
   -valorDesconto: BigDecimal
@@ -146,20 +132,17 @@ class CupomDesconto {
 
 DefaultEntity <|-- CupomDesconto
 
-'========================
-' PEDIDO
-'========================
 class Pedido {
   -data: LocalDateTime
-  -status: StatusPedido
   -total: BigDecimal
-  -enderecoEntrega: Endereco
+  -enderecoEntrega: EnderecoEntrega
 }
 
 DefaultEntity <|-- Pedido
 
+Pedido --> StatusPedido
 Pedido "1" --> "1" Cliente
-Pedido "1" *-- "1" Endereco
+Pedido "1" *-- "1" EnderecoEntrega
 Pedido "0..1" o-- "1" CupomDesconto
 
 class ItemPedido {
