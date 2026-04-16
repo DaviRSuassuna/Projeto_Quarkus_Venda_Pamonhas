@@ -1,55 +1,21 @@
 @startuml diagramaDeClasses
 
+' =========================
+' Classe base (sem herança explícita)
+' =========================
 abstract class DefaultEntity <<MappedSuperclass>> {
   -id: Long
   -dataCadastro: LocalDateTime
 }
 
-abstract class Pessoa {
-  -nome: String
-  -email: String
-  -telefone: String
-}
+note bottom of DefaultEntity
+  Todas as classes herdam
+  de DefaultEntity
+end note
 
-DefaultEntity <|-- Pessoa
-
-class Cliente {
-  -cpf: String
-  -dataNascimento: LocalDate
-}
-
-Pessoa <|-- Cliente
-
-class EnderecoCliente <<Embeddable>> {
-  -rua: String
-  -numero: String
-  -bairro: String
-  -cidade: String
-  -estado: String
-  -cep: String
-}
-
-class EnderecoEntrega <<Embeddable>> {
-  -rua: String
-  -numero: String
-  -bairro: String
-  -cidade: String
-  -estado: String
-  -cep: String
-}
-
-Cliente "1" *-- "0..*" EnderecoCliente
-
-enum SaborPamonha {
-  DOCE
-  SALGADA
-}
-
-enum TipoPamonha {
-  TRADICIONAL
-  COM_QUEIJO
-  GOURMET
-}
+' =========================
+' ENUM
+' =========================
 
 enum UnidadeMedida {
   KG
@@ -59,42 +25,15 @@ enum UnidadeMedida {
   UNIDADE
 }
 
-enum StatusPedido {
-  ABERTO
-  PAGO
-  CANCELADO
-}
-
+' =========================
+' ENTIDADES PRINCIPAIS (CRUDs)
+' =========================
 class Pamonha {
   -nome: String
   -descricao: String
   -preco: BigDecimal
   -estoque: int
-  -tabelaNutricional: TabelaNutricional
-
-  +atualizarTabelaNutricional(): void
 }
-
-DefaultEntity <|-- Pamonha
-
-Pamonha --> SaborPamonha
-Pamonha --> TipoPamonha
-
-class Receita {
-  -descricao: String
-
-  +calcularTabelaNutricional(): TabelaNutricional
-}
-
-Pamonha "1" *-- "1" Receita
-
-class ItemReceita {
-  -quantidade: double
-}
-
-Receita "1" *-- "1..*" ItemReceita
-
-ItemReceita --> UnidadeMedida
 
 class Ingrediente {
   -nome: String
@@ -102,55 +41,76 @@ class Ingrediente {
   -estoque: double
 }
 
-DefaultEntity <|-- Ingrediente
+class Categoria {
+  -nome: String
+  -descricao: String
+}
 
-ItemReceita "1" o-- "1" Ingrediente
+class ModoPreparo {
+  -descricao: String
+  -tempoPreparoMinutos: int
+}
 
-Ingrediente --> UnidadeMedida
+' =========================
+' HERANÇA (EMBALAGEM)
+' =========================
+abstract class Embalagem {
+  -descricao: String
+  -custo: BigDecimal
+  -pesoSuportado: double
+}
 
+class EmbalagemPlastica {
+  -tipoPlastico: String
+  -reciclavel: boolean
+}
+
+class EmbalagemBiodegradavel {
+  -material: String
+  -tempoDecomposicaoDias: int
+}
+
+Embalagem <|-- EmbalagemPlastica
+Embalagem <|-- EmbalagemBiodegradavel
+
+' =========================
+' COMPOSIÇÃO
+' =========================
 class TabelaNutricional {
   -valorEnergetico: double
   -carboidratos: double
-  -acucaresTotais: double
   -proteinas: double
-  -gordurasTotal: double
-  -gordurasSaturadas: double
-  -gordurasTrans: double
-  -fibrasAlimentares: double
+  -gordurasTotais: double
+  -fibras: double
   -sodio: double
 }
 
-Ingrediente "1" --> "1" TabelaNutricional
-Pamonha "1" --> "1" TabelaNutricional
+Pamonha "1" *-- "1" TabelaNutricional
 
-class CupomDesconto {
-  -codigo: String
-  -valorDesconto: BigDecimal
-  -dataValidade: LocalDate
-  -ativo: boolean
+class ItemReceita {
+  -quantidade: double
 }
 
-DefaultEntity <|-- CupomDesconto
+Pamonha "1" *-- "1..*" ItemReceita
 
-class Pedido {
-  -data: LocalDateTime
-  -total: BigDecimal
-  -enderecoEntrega: EnderecoEntrega
-}
+' =========================
+' RELACIONAMENTOS
+' =========================
 
-DefaultEntity <|-- Pedido
+' N:1
+ItemReceita "* " --> "1" Ingrediente
 
-Pedido --> StatusPedido
-Pedido "1" --> "1" Cliente
-Pedido "1" *-- "1" EnderecoEntrega
-Pedido "0..1" o-- "1" CupomDesconto
+' N:N (AGREGAÇÃO)
+Pamonha "* " o-- "* " Categoria
 
-class ItemPedido {
-  -quantidade: int
-  -precoUnitario: BigDecimal
-}
+' Associação
+Pamonha "* " --> "1" Embalagem
 
-Pedido "1" *-- "1..*" ItemPedido
-ItemPedido "1" --> "1" Pamonha
+' Composição (mais coerente)
+Pamonha "1" *-- "1" ModoPreparo
+
+' Enum
+ItemReceita "* " --> "1" UnidadeMedida
+Ingrediente "* " --> "1" UnidadeMedida
 
 @enduml
