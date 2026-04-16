@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 @Table(name = "item_receita")
 public class ItemReceita extends DefaultEntity {
 
+    @Column(name = "quantidade")
     private double quantidade;
 
     @Column(name = "unidade_medida")
@@ -19,8 +20,8 @@ public class ItemReceita extends DefaultEntity {
     private UnidadeMedida unidadeMedida;
 
     @ManyToOne
-    @JoinColumn(name = "receita_id")
-    private Receita receita;
+    @JoinColumn(name = "pamonha_id")
+    private Pamonha pamonha;
 
     @ManyToOne
     @JoinColumn(name = "ingrediente_id")
@@ -42,12 +43,12 @@ public class ItemReceita extends DefaultEntity {
         this.unidadeMedida = unidadeMedida;
     }
 
-    public Receita getReceita() {
-        return receita;
+    public Pamonha getPamonha() {
+        return pamonha;
     }
 
-    public void setReceita(Receita receita) {
-        this.receita = receita;
+    public void setPamonha(Pamonha pamonha) {
+        this.pamonha = pamonha;
     }
 
     public Ingrediente getIngrediente() {
@@ -57,5 +58,4 @@ public class ItemReceita extends DefaultEntity {
     public void setIngrediente(Ingrediente ingrediente) {
         this.ingrediente = ingrediente;
     }
-
 }

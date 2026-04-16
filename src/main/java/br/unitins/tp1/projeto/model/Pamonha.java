@@ -1,14 +1,17 @@
 package br.unitins.tp1.projeto.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -16,25 +19,38 @@ import jakarta.persistence.Table;
 @Table(name = "pamonha")
 public class Pamonha extends DefaultEntity {
 
+    @Column(name = "nome")
     private String nome;
+
+    @Column(name = "descricao")
     private String descricao;
+
+    @Column(name = "preco")
     private BigDecimal preco;
+
+    @Column(name = "estoque")
     private Integer estoque;
-
-    @Column(name = "sabor_pamonha")
-    @Enumerated(EnumType.STRING)
-    private SaborPamonha saborPamonha;
-
-    @Column(name = "tipo_pamonha")
-    @Enumerated(EnumType.STRING)
-    private TipoPamonha tipoPamonha;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "receita_id")
-    private Receita receita;
 
     @Embedded
     private TabelaNutricional tabelaNutricional;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "modo_preparo_id")
+    private ModoPreparo modoPreparo;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "embalagem_id")
+    private Embalagem embalagem;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "pamonha_categoria",
+        joinColumns = @JoinColumn(name = "pamonha_id"),
+        inverseJoinColumns = @JoinColumn(name = "categoria_id")
+    )
+    private List<Categoria> categorias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pamonha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemReceita> itensReceita = new ArrayList<>();
 
     public String getNome() {
         return nome;
@@ -68,22 +84,6 @@ public class Pamonha extends DefaultEntity {
         this.estoque = estoque;
     }
 
-    public SaborPamonha getSaborPamonha() {
-        return saborPamonha;
-    }
-
-    public void setSaborPamonha(SaborPamonha saborPamonha) {
-        this.saborPamonha = saborPamonha;
-    }
-
-    public TipoPamonha getTipoPamonha() {
-        return tipoPamonha;
-    }
-
-    public void setTipoPamonha(TipoPamonha tipoPamonha) {
-        this.tipoPamonha = tipoPamonha;
-    }
-
     public TabelaNutricional getTabelaNutricional() {
         return tabelaNutricional;
     }
@@ -92,14 +92,35 @@ public class Pamonha extends DefaultEntity {
         this.tabelaNutricional = tabelaNutricional;
     }
 
-    public Receita getReceita() {
-        return receita;
+    public ModoPreparo getModoPreparo() {
+        return modoPreparo;
     }
 
-    public void setReceita(Receita receita) {
-        this.receita = receita;
+    public void setModoPreparo(ModoPreparo modoPreparo) {
+        this.modoPreparo = modoPreparo;
     }
 
-    
+    public Embalagem getEmbalagem() {
+        return embalagem;
+    }
 
+    public void setEmbalagem(Embalagem embalagem) {
+        this.embalagem = embalagem;
+    }
+
+    public List<Categoria> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(List<Categoria> categorias) {
+        this.categorias = categorias;
+    }
+
+    public List<ItemReceita> getItensReceita() {
+        return itensReceita;
+    }
+
+    public void setItensReceita(List<ItemReceita> itensReceita) {
+        this.itensReceita = itensReceita;
+    }
 }

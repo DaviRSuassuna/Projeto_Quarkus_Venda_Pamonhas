@@ -9,11 +9,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class PamonhaRepository implements PanacheRepository<Pamonha> {
 
-    public List<Pamonha> findByTipoPamonha(String tipoPamonha) {
-        return find("SELECT p FROM Pamonha p WHERE UPPER(p.tipo_pamonha) LIKE UPPER(?1)", "%"+tipoPamonha+"%").list();
+    public List<Pamonha> findByNome(String nome) {
+        return find("UPPER(nome) LIKE UPPER(?1)", "%" + nome + "%").list();
     }
 
-    public List<Pamonha> findBySaborPamonha(String saborPamonha) {
-        return find("SELECT p FROM Pamonha p WHERE UPPER(p.sabor_pamonha) LIKE UPPER(?1)", "%"+saborPamonha+"%").list();
+    public List<Pamonha> findByCategoria(Long categoriaId) {
+        return find("SELECT p FROM Pamonha p JOIN p.categorias c WHERE c.id = ?1", categoriaId).list();
     }
 }
+

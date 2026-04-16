@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.MediaType;
 public class PamonhaResource {
 
     @Inject
-
     PamonhaService service;
 
     @POST
@@ -35,7 +34,7 @@ public class PamonhaResource {
 
     @GET
     public List<PamonhaResponseDTO> buscarTodos() {
-        return service.findAll().stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+        return service.findAll().stream().map(PamonhaMapper::toResponseDTO).toList();
     }
 
     @GET
@@ -45,19 +44,20 @@ public class PamonhaResource {
     }
 
     @GET
-    @Path("/find/sabor-pamonha/{sabor-pamonha}")
-    public List<PamonhaResponseDTO> encontrarPorSaborPamonha(@PathParam("sabor-pamonha") String saborPamonha ) {
-        return service.findBySaborPamonha(saborPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    @Path("/find/nome/{nome}")
+    public List<PamonhaResponseDTO> encontrarPorNome(@PathParam("nome") String nome) {
+        return service.findByNome(nome).stream().map(PamonhaMapper::toResponseDTO).toList();
     }
 
     @GET
-    @Path("/find/tipo-pamonha/{tipo-pamonha}")
-    public List<PamonhaResponseDTO> encontrarPorTipoPamonha(@PathParam("tipo-pamonha") String tipoPamonha ) {
-        return service.findByTipoPamonha(tipoPamonha).stream().map(p -> PamonhaMapper.toResponseDTO(p)).toList();
+    @Path("/find/categoria/{categoriaId}")
+    public List<PamonhaResponseDTO> encontrarPorCategoria(@PathParam("categoriaId") Long categoriaId) {
+        return service.findByCategoria(categoriaId).stream().map(PamonhaMapper::toResponseDTO).toList();
     }
 
     @PUT
     @Path("/{id}")
+    @Transactional
     public void atualizar(@PathParam("id") Long id, PamonhaRequestDTO dto) {
         service.update(id, dto);
     }
@@ -68,3 +68,4 @@ public class PamonhaResource {
         service.delete(id);
     }
 }
+

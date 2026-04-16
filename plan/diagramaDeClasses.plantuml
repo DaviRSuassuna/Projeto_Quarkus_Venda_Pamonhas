@@ -1,8 +1,5 @@
 @startuml diagramaDeClasses
 
-' =========================
-' Classe base (sem herança explícita)
-' =========================
 abstract class DefaultEntity <<MappedSuperclass>> {
   -id: Long
   -dataCadastro: LocalDateTime
@@ -13,10 +10,6 @@ note bottom of DefaultEntity
   de DefaultEntity
 end note
 
-' =========================
-' ENUM
-' =========================
-
 enum UnidadeMedida {
   KG
   GRAMA
@@ -25,9 +18,6 @@ enum UnidadeMedida {
   UNIDADE
 }
 
-' =========================
-' ENTIDADES PRINCIPAIS (CRUDs)
-' =========================
 class Pamonha {
   -nome: String
   -descricao: String
@@ -51,9 +41,6 @@ class ModoPreparo {
   -tempoPreparoMinutos: int
 }
 
-' =========================
-' HERANÇA (EMBALAGEM)
-' =========================
 abstract class Embalagem {
   -descricao: String
   -custo: BigDecimal
@@ -73,9 +60,6 @@ class EmbalagemBiodegradavel {
 Embalagem <|-- EmbalagemPlastica
 Embalagem <|-- EmbalagemBiodegradavel
 
-' =========================
-' COMPOSIÇÃO
-' =========================
 class TabelaNutricional {
   -valorEnergetico: double
   -carboidratos: double
@@ -93,23 +77,14 @@ class ItemReceita {
 
 Pamonha "1" *-- "1..*" ItemReceita
 
-' =========================
-' RELACIONAMENTOS
-' =========================
-
-' N:1
 ItemReceita "* " --> "1" Ingrediente
 
-' N:N (AGREGAÇÃO)
 Pamonha "* " o-- "* " Categoria
 
-' Associação
 Pamonha "* " --> "1" Embalagem
 
-' Composição (mais coerente)
 Pamonha "1" *-- "1" ModoPreparo
 
-' Enum
 ItemReceita "* " --> "1" UnidadeMedida
 Ingrediente "* " --> "1" UnidadeMedida
 

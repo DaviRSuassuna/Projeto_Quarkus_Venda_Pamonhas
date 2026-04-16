@@ -12,9 +12,9 @@ public interface PamonhaService {
 
     Pamonha findById(Long id);
 
-    List<Pamonha> findByTipoPamonha(String tipoPamonha);
+    List<Pamonha> findByNome(String nome);
 
-    List<Pamonha> findBySaborPamonha(String saborPamonha);
+    List<Pamonha> findByCategoria(Long categoriaId);
 
     PamonhaResponseDTO create(PamonhaRequestDTO dto);
 
@@ -22,3 +22,4 @@ public interface PamonhaService {
 
     void delete(Long id);
 }
+
