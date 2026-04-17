@@ -9,6 +9,7 @@ import br.unitins.tp1.projeto.model.ModoPreparo;
 import br.unitins.tp1.projeto.service.ModoPreparoService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -18,6 +19,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/modo-preparo")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,9 +31,11 @@ public class ModoPreparoResource {
 
     @POST
     @Transactional
-    public ModoPreparoResponseDTO incluir(ModoPreparoRequestDTO dto) {
+    public Response incluir(@Valid ModoPreparoRequestDTO dto) {
         ModoPreparo modo = service.create(ModoPreparoMapper.toEntity(dto));
-        return ModoPreparoMapper.toResponseDTO(modo);
+        return Response.status(Response.Status.CREATED)
+                .entity(ModoPreparoMapper.toResponseDTO(modo))
+                .build();
     }
 
     @GET
@@ -60,13 +64,15 @@ public class ModoPreparoResource {
     @PUT
     @Path("/{id}")
     @Transactional
-    public void atualizar(@PathParam("id") Long id, ModoPreparoRequestDTO dto) {
+    public Response atualizar(@PathParam("id") Long id, @Valid ModoPreparoRequestDTO dto) {
         service.update(id, dto);
+        return Response.noContent().build();
     }
 
     @DELETE
     @Path("/{id}")
-    public void delete(@PathParam("id") long id) {
+    public Response delete(@PathParam("id") long id) {
         service.delete(id);
+        return Response.noContent().build();
     }
 }

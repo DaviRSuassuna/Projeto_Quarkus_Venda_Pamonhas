@@ -1,6 +1,8 @@
 package br.unitins.tp1.projeto.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CategoriaRequestDTO(
-    String nome,
-    String descricao
+    @NotBlank String nome,
+    @NotBlank String descricao
 ) {}

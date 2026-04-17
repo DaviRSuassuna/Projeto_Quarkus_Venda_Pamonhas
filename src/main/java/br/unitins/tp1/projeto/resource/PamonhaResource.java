@@ -8,6 +8,7 @@ import br.unitins.tp1.projeto.mapper.PamonhaMapper;
 import br.unitins.tp1.projeto.service.PamonhaService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -17,6 +18,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/pamonhas")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,8 +30,9 @@ public class PamonhaResource {
 
     @POST
     @Transactional
-    public PamonhaResponseDTO incluir(PamonhaRequestDTO dto) {
-        return service.create(dto);
+    public Response incluir(@Valid PamonhaRequestDTO dto) {
+        PamonhaResponseDTO response = service.create(dto);
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @GET
@@ -58,14 +61,16 @@ public class PamonhaResource {
     @PUT
     @Path("/{id}")
     @Transactional
-    public void atualizar(@PathParam("id") Long id, PamonhaRequestDTO dto) {
+    public Response atualizar(@PathParam("id") Long id, @Valid PamonhaRequestDTO dto) {
         service.update(id, dto);
+        return Response.noContent().build();
     }
 
     @DELETE
     @Path("/{id}")
-    public void delete(@PathParam("id") long id) {
+    public Response delete(@PathParam("id") long id) {
         service.delete(id);
+        return Response.noContent().build();
     }
 }
 

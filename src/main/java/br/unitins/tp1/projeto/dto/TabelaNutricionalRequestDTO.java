@@ -1,10 +1,12 @@
 package br.unitins.tp1.projeto.dto;
 
+import jakarta.validation.constraints.PositiveOrZero;
+
 public record TabelaNutricionalRequestDTO(
-    double valorEnergetico,
-    double carboidratos,
-    double proteinas,
-    double gordurasTotais,
-    double fibras,
-    double sodio
+    @PositiveOrZero double valorEnergetico,
+    @PositiveOrZero double carboidratos,
+    @PositiveOrZero double proteinas,
+    @PositiveOrZero double gordurasTotais,
+    @PositiveOrZero double fibras,
+    @PositiveOrZero double sodio
 ) {}
