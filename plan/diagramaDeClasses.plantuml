@@ -77,13 +77,13 @@ class ItemReceita {
 
 Pamonha "1" *-- "1..*" ItemReceita
 
-ItemReceita "* " --> "1" Ingrediente
+ItemReceita "* " *-- "1" Ingrediente
 
-Pamonha "* " o-- "* " Categoria
+Pamonha "* " --> "* " Categoria
 
 Pamonha "* " --> "1" Embalagem
 
-Pamonha "1" *-- "1" ModoPreparo
+Pamonha "1" --> "1" ModoPreparo
 
 ItemReceita "* " --> "1" UnidadeMedida
 Ingrediente "* " --> "1" UnidadeMedida
