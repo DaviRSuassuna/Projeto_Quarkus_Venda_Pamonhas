@@ -6,6 +6,7 @@ import br.unitins.tp1.projeto.dto.CategoriaRequestDTO;
 import br.unitins.tp1.projeto.dto.ItemReceitaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
+import br.unitins.tp1.projeto.exception.ValidationException;
 import br.unitins.tp1.projeto.mapper.PamonhaMapper;
 import br.unitins.tp1.projeto.model.Embalagem;
 import br.unitins.tp1.projeto.model.EmbalagemBiodegradavel;
@@ -70,6 +71,12 @@ public class PamonhaServiceImpl implements PamonhaService {
     @Override
     @Transactional
     public PamonhaResponseDTO create(PamonhaRequestDTO dto) {
+        // Validação de negócio: verificar se o nome já existe
+        List<Pamonha> existentes = pamonhaRepository.findByNome(dto.nome());
+        if (!existentes.isEmpty()) {
+            throw new ValidationException("nome", "Já existe uma pamonha com este nome");
+        }
+        
         Pamonha pamonha = PamonhaMapper.toEntity(dto);
         resolveReceitaIngredientes(pamonha);
         pamonhaRepository.persist(pamonha);
@@ -82,6 +89,12 @@ public class PamonhaServiceImpl implements PamonhaService {
         Pamonha pamonhaUpdate = findById(id);
         if (pamonhaUpdate == null) {
             throw new RuntimeException("Pamonha não encontrada: " + id);
+        }
+
+        // Validação de negócio: verificar se o nome já existe (exceto para o próprio)
+        List<Pamonha> existentes = pamonhaRepository.findByNome(dto.nome());
+        if (!existentes.isEmpty() && !existentes.get(0).getId().equals(id)) {
+            throw new ValidationException("nome", "Já existe uma pamonha com este nome");
         }
 
         pamonhaUpdate.setNome(dto.nome());

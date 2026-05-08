@@ -3,6 +3,7 @@ package br.unitins.tp1.projeto.service;
 import java.util.List;
 
 import br.unitins.tp1.projeto.dto.EmbalagemRequestDTO;
+import br.unitins.tp1.projeto.exception.ValidationException;
 import br.unitins.tp1.projeto.model.Embalagem;
 import br.unitins.tp1.projeto.model.EmbalagemBiodegradavel;
 import br.unitins.tp1.projeto.model.EmbalagemPlastica;
@@ -45,6 +46,11 @@ public class EmbalagemServiceImpl implements EmbalagemService {
     @Override
     @Transactional
     public Embalagem create(EmbalagemRequestDTO dto) {
+        // Validação de negócio: verificar se a descrição já existe
+        List<Embalagem> existentes = repository.findByDescricao(dto.descricao());
+        if (!existentes.isEmpty()) {
+            throw new ValidationException("descricao", "Já existe uma embalagem com esta descrição");
+        }
 
         Embalagem embalagem;
 
@@ -79,6 +85,12 @@ public class EmbalagemServiceImpl implements EmbalagemService {
         Embalagem embalagem = findById(id);
         if (embalagem == null) {
             throw new RuntimeException("Embalagem não encontrada: " + id);
+        }
+
+        // Validação de negócio: verificar se a descrição já existe (exceto para o próprio)
+        List<Embalagem> existentes = repository.findByDescricao(dto.descricao());
+        if (!existentes.isEmpty() && !existentes.get(0).getId().equals(id)) {
+            throw new ValidationException("descricao", "Já existe uma embalagem com esta descrição");
         }
 
         embalagem.setDescricao(dto.descricao());

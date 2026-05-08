@@ -28,4 +28,8 @@ public class EmbalagemRepository implements PanacheRepository<Embalagem> {
     public List<Embalagem> findBiodegradavelRapida(int dias) {
         return find("FROM Embalagem e WHERE TYPE(e) = EmbalagemBiodegradavel AND tempoDecomposicaoDias <= ?1", dias).list();
     }
+
+    public List<Embalagem> findByDescricao(String descricao) {
+        return find("descricao = ?1", descricao).list();
+    }
 }
