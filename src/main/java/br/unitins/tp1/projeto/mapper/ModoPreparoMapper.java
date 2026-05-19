@@ -21,6 +21,7 @@ public class ModoPreparoMapper {
             return null;
         }
         return new ModoPreparoResponseDTO(
+            modo.getId(),
             modo.getDescricao(),
             modo.getTempoPreparoMinutos()
         );

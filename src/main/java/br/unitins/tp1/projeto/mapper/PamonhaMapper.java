@@ -153,6 +153,7 @@ public class PamonhaMapper {
             return null;
         }
         return new ModoPreparoResponseDTO(
+            modo.getId(),
             modo.getDescricao(),
             modo.getTempoPreparoMinutos()
         );
@@ -187,6 +188,7 @@ public class PamonhaMapper {
 
         if (embalagem instanceof EmbalagemPlastica plastica) {
             return new EmbalagemResponseDTO(
+                plastica.getId(),
                 "PLASTICA",
                 plastica.getDescricao(),
                 plastica.getCusto(),
@@ -200,6 +202,7 @@ public class PamonhaMapper {
 
         if (embalagem instanceof EmbalagemBiodegradavel biodegradavel) {
             return new EmbalagemResponseDTO(
+                biodegradavel.getId(),
                 "BIODEGRADAVEL",
                 biodegradavel.getDescricao(),
                 biodegradavel.getCusto(),
@@ -212,6 +215,7 @@ public class PamonhaMapper {
         }
 
         return new EmbalagemResponseDTO(
+            embalagem.getId(),
             "UNKNOWN",
             embalagem.getDescricao(),
             embalagem.getCusto(),

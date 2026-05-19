@@ -12,7 +12,7 @@ public class ValidationException extends RuntimeException {
         super(message);
     }
 
-    public ValidationException(String message, String field) {
+    public ValidationException(String field, String message) {
         super(message);
         this.field = field;
     }
@@ -21,7 +21,7 @@ public class ValidationException extends RuntimeException {
         super(message, cause);
     }
 
-    public ValidationException(String message, String field, Throwable cause) {
+    public ValidationException(String field, String message, Throwable cause) {
         super(message, cause);
         this.field = field;
     }

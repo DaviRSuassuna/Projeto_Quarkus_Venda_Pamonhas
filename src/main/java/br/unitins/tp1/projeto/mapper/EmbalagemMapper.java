@@ -37,6 +37,7 @@ public class EmbalagemMapper {
 
         if (e instanceof EmbalagemPlastica plastica) {
             return new EmbalagemResponseDTO(
+                plastica.getId(),
                 "PLASTICA",
                 plastica.getDescricao(),
                 plastica.getCusto(),
@@ -50,6 +51,7 @@ public class EmbalagemMapper {
 
         if (e instanceof EmbalagemBiodegradavel bio) {
             return new EmbalagemResponseDTO(
+                bio.getId(),
                 "BIODEGRADAVEL",
                 bio.getDescricao(),
                 bio.getCusto(),

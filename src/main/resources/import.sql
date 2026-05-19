@@ -1,3 +1,6 @@
+-- Import inicial de dados
+INSERT INTO usuario (login, senha, perfil, data_cadastro) VALUES
+('admin', '$2a$10$TkB2wCdCdgmiy.Z/q3GSIuOT7QEiSk4kzKYxvzk8UC2CO2TgF3CMe', 'ROLE_ADMIN', NOW());
 -- Data inicial adaptada ao modelo atual do projeto.
 
 INSERT INTO ingrediente (id, nome, preco_unitario, estoque, unidade_medida) VALUES
