@@ -17,8 +17,8 @@ public class ModoPreparoServiceImpl implements ModoPreparoService {
     ModoPreparoRepository repository;
 
     @Override
-    public List<ModoPreparo> findAll() {
-        return repository.findAll().list();
+    public List<ModoPreparo> findAll(int page, int size) {
+        return repository.findAll().page(page, size).list();
     }
 
     @Override

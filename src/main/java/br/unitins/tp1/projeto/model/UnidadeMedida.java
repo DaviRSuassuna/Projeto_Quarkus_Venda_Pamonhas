@@ -2,6 +2,7 @@ package br.unitins.tp1.projeto.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 public enum UnidadeMedida {
@@ -19,10 +20,12 @@ public enum UnidadeMedida {
         this.NOME = nome;
     }
 
+    @JsonProperty("ID")
     public Long getID() {
         return ID;
     }
 
+    @JsonProperty("NOME")
     public String getNOME() {
         return NOME;
     }

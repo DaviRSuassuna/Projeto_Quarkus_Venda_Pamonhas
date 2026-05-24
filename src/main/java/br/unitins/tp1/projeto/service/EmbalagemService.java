@@ -7,7 +7,7 @@ import br.unitins.tp1.projeto.model.Embalagem;
 
 public interface EmbalagemService {
 
-    List<Embalagem> findAll();
+    List<Embalagem> findAll(int page, int size);
 
     Embalagem findById(Long id);
 

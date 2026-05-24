@@ -8,7 +8,7 @@ import br.unitins.tp1.projeto.model.Pamonha;
 
 public interface PamonhaService {
 
-    List<Pamonha> findAll();
+    List<Pamonha> findAll(int page, int size);
 
     Pamonha findById(Long id);
 

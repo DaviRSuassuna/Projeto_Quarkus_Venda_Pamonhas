@@ -22,7 +22,7 @@ class Pamonha {
   -nome: String
   -descricao: String
   -preco: BigDecimal
-  -estoque: int
+  -estoque: Integer
 }
 
 class Ingrediente {
@@ -60,7 +60,7 @@ class EmbalagemBiodegradavel {
 Embalagem <|-- EmbalagemPlastica
 Embalagem <|-- EmbalagemBiodegradavel
 
-class TabelaNutricional {
+class TabelaNutricional <<Embeddable>> {
   -valorEnergetico: double
   -carboidratos: double
   -proteinas: double
@@ -77,11 +77,11 @@ class ItemReceita {
 
 Pamonha "1" *-- "1..*" ItemReceita
 
-ItemReceita "* " *-- "1" Ingrediente
+ItemReceita "* " --> "1" Ingrediente
 
 Pamonha "* " --> "* " Categoria
 
-Pamonha "* " --> "1" Embalagem
+Pamonha "1" --> "1" Embalagem
 
 Pamonha "1" --> "1" ModoPreparo
 

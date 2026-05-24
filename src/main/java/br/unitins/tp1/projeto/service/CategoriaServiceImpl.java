@@ -17,8 +17,8 @@ public class CategoriaServiceImpl implements CategoriaService {
     CategoriaRepository repository;
 
     @Override
-    public List<Categoria> findAll() {
-        return repository.findAll().list();
+    public List<Categoria> findAll(int page, int size) {
+        return repository.findAll().page(page, size).list();
     }
 
     @Override

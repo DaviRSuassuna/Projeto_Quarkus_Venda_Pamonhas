@@ -7,17 +7,21 @@ import br.unitins.tp1.projeto.dto.CategoriaResponseDTO;
 import br.unitins.tp1.projeto.mapper.CategoriaMapper;
 import br.unitins.tp1.projeto.model.Categoria;
 import br.unitins.tp1.projeto.service.CategoriaService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -31,6 +35,7 @@ public class CategoriaResource {
 
     @POST
     @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response incluir(@Valid CategoriaRequestDTO dto) {
         Categoria categoria = service.create(CategoriaMapper.toEntity(dto));
         return Response.status(Response.Status.CREATED)
@@ -39,14 +44,18 @@ public class CategoriaResource {
     }
 
     @GET
-    public List<CategoriaResponseDTO> buscarTodos() {
-        return service.findAll().stream().map(CategoriaMapper::toResponseDTO).toList();
+    public List<CategoriaResponseDTO> buscarTodos(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return service.findAll(page, size).stream().map(CategoriaMapper::toResponseDTO).toList();
     }
 
     @GET
     @Path("/{id}")
     public CategoriaResponseDTO encontrarPorId(@PathParam("id") long id) {
-        return CategoriaMapper.toResponseDTO(service.findById(id));
+        Categoria categoria = service.findById(id);
+        if (categoria == null) throw new NotFoundException("Categoria não encontrada");
+        return CategoriaMapper.toResponseDTO(categoria);
     }
 
     @GET
@@ -64,6 +73,7 @@ public class CategoriaResource {
     @PUT
     @Path("/{id}")
     @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response atualizar(@PathParam("id") Long id, @Valid CategoriaRequestDTO dto) {
         service.update(id, dto);
         return Response.noContent().build();
@@ -71,6 +81,7 @@ public class CategoriaResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("ROLE_ADMIN")
     public Response delete(@PathParam("id") long id) {
         service.delete(id);
         return Response.noContent().build();

@@ -1,7 +1,8 @@
 -- Import inicial de dados
 INSERT INTO usuario (login, senha, perfil, data_cadastro) VALUES
-('admin', '$2a$10$TkB2wCdCdgmiy.Z/q3GSIuOT7QEiSk4kzKYxvzk8UC2CO2TgF3CMe', 'ROLE_ADMIN', NOW());
+('admin', '$2a$10$P0..VOZ8wzas1xrY7wPcEOhNi8gMhURNJKSQrge/7zzhLyaPRKh1i', 'ROLE_ADMIN', NOW());
 -- Data inicial adaptada ao modelo atual do projeto.
+-- Senha: pamonha123
 
 INSERT INTO ingrediente (id, nome, preco_unitario, estoque, unidade_medida) VALUES
 (1, 'Milho Verde', 3.50, 100, 'KG'),
@@ -46,3 +47,11 @@ INSERT INTO item_receita (id, quantidade, unidade_medida, pamonha_id, ingredient
 INSERT INTO pamonha_categoria (pamonha_id, categoria_id) VALUES
 (1, 3),
 (2, 2);
+
+-- Reinicia as sequences para evitar conflito de chave primária após inserts com IDs explícitos
+ALTER TABLE ingrediente ALTER COLUMN id RESTART WITH 6;
+ALTER TABLE categoria ALTER COLUMN id RESTART WITH 4;
+ALTER TABLE modo_preparo ALTER COLUMN id RESTART WITH 3;
+ALTER TABLE embalagem ALTER COLUMN id RESTART WITH 3;
+ALTER TABLE pamonha ALTER COLUMN id RESTART WITH 3;
+ALTER TABLE item_receita ALTER COLUMN id RESTART WITH 5;

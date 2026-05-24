@@ -19,8 +19,8 @@ public class EmbalagemServiceImpl implements EmbalagemService {
     EmbalagemRepository repository;
 
     @Override
-    public List<Embalagem> findAll() {
-        return repository.findAll().list();
+    public List<Embalagem> findAll(int page, int size) {
+        return repository.findAll().page(page, size).list();
     }
 
     @Override

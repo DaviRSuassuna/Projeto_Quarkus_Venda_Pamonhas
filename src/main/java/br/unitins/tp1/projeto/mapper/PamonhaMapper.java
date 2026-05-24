@@ -2,6 +2,7 @@ package br.unitins.tp1.projeto.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import br.unitins.tp1.projeto.dto.CategoriaRequestDTO;
 import br.unitins.tp1.projeto.dto.CategoriaResponseDTO;
@@ -78,6 +79,7 @@ public class PamonhaMapper {
         return pamonha;
     }
 
+    @SuppressWarnings("null")
     public static PamonhaResponseDTO toResponseDTO(Pamonha pamonha) {
 
         if (pamonha == null) {
@@ -94,7 +96,7 @@ public class PamonhaMapper {
                 item.getUnidadeMedida(),
                 item.getIngrediente() != null ? item.getIngrediente().getNome() : null
             ))
-            .toList();
+            .collect(Collectors.toList());
 
         return new PamonhaResponseDTO(
             pamonha.getId(),

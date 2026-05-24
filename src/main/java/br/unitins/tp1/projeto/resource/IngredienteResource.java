@@ -7,17 +7,21 @@ import br.unitins.tp1.projeto.dto.IngredienteResponseDTO;
 import br.unitins.tp1.projeto.mapper.IngredienteMapper;
 import br.unitins.tp1.projeto.model.Ingrediente;
 import br.unitins.tp1.projeto.service.IngredienteService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -31,6 +35,7 @@ public class IngredienteResource {
 
     @POST
     @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response incluir(@Valid IngredienteRequestDTO dto) {
         Ingrediente ingrediente = service.create(IngredienteMapper.toEntity(dto));
         return Response.status(Response.Status.CREATED)
@@ -39,14 +44,18 @@ public class IngredienteResource {
     }
 
     @GET
-    public List<IngredienteResponseDTO> buscarTodos() {
-        return service.findAll().stream().map(i -> IngredienteMapper.toResponseDTO(i)).toList();
+    public List<IngredienteResponseDTO> buscarTodos(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return service.findAll(page, size).stream().map(IngredienteMapper::toResponseDTO).toList();
     }
 
     @GET
     @Path("/{id}")
     public IngredienteResponseDTO encontrarPorId(@PathParam("id") long id) {
-        return IngredienteMapper.toResponseDTO(service.findById(id));
+        Ingrediente ingrediente = service.findById(id);
+        if (ingrediente == null) throw new NotFoundException("Ingrediente não encontrado");
+        return IngredienteMapper.toResponseDTO(ingrediente);
     }
 
     @GET
@@ -63,6 +72,8 @@ public class IngredienteResource {
 
     @PUT
     @Path("/{id}")
+    @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response atualizar(@PathParam("id") Long id, @Valid IngredienteRequestDTO dto) {
         service.update(id, dto);
         return Response.noContent().build();
@@ -70,6 +81,7 @@ public class IngredienteResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("ROLE_ADMIN")
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();

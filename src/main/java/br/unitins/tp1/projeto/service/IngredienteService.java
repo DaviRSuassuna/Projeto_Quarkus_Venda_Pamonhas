@@ -7,7 +7,7 @@ import br.unitins.tp1.projeto.model.Ingrediente;
 
 public interface IngredienteService {
 
-    List<Ingrediente> findAll();
+    List<Ingrediente> findAll(int page, int size);
 
     Ingrediente findById(Long id);
 

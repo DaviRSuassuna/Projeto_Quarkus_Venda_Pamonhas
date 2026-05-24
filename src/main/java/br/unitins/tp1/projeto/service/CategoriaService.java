@@ -7,7 +7,7 @@ import br.unitins.tp1.projeto.model.Categoria;
 
 public interface CategoriaService {
 
-    List<Categoria> findAll();
+    List<Categoria> findAll(int page, int size);
 
     Categoria findById(Long id);
 

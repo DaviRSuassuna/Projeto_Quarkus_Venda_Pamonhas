@@ -30,8 +30,8 @@ public class PamonhaServiceImpl implements PamonhaService {
     IngredienteRepository ingredienteRepository;
 
     @Override
-    public List<Pamonha> findAll() {
-        return pamonhaRepository.findAll().list();
+    public List<Pamonha> findAll(int page, int size) {
+        return pamonhaRepository.findAll().page(page, size).list();
     }
 
     @Override
@@ -146,14 +146,15 @@ public class PamonhaServiceImpl implements PamonhaService {
                 ItemReceita item = new ItemReceita();
                 item.setQuantidade(itemDTO.quantidade());
                 item.setUnidadeMedida(itemDTO.unidadeMedida());
+                item.setPamonha(pamonhaUpdate);
                 if (itemDTO.ingredienteId() != null) {
-                    Ingrediente ingrediente = new Ingrediente();
-                    ingrediente.setId(itemDTO.ingredienteId());
+                    Ingrediente ingrediente = ingredienteRepository.findById(itemDTO.ingredienteId());
+                    if (ingrediente == null)
+                        throw new RuntimeException("Ingrediente não encontrado: " + itemDTO.ingredienteId());
                     item.setIngrediente(ingrediente);
                 }
                 pamonhaUpdate.getItensReceita().add(item);
             }
-            resolveReceitaIngredientes(pamonhaUpdate);
         }
 
         pamonhaRepository.persist(pamonhaUpdate);

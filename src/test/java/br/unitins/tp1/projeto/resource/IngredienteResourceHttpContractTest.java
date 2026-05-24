@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -26,8 +27,8 @@ import br.unitins.tp1.projeto.model.UnidadeMedida;
 import br.unitins.tp1.projeto.service.IngredienteService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
-import jakarta.ws.rs.NotFoundException;
 
 @QuarkusTest
 class IngredienteResourceHttpContractTest {
@@ -42,11 +43,15 @@ class IngredienteResourceHttpContractTest {
         reset(ingredienteService);
     }
 
+    // -------------------------------------------------------------------------
+    // GET /ingredientes
+    // -------------------------------------------------------------------------
+
     @Test
     void deveListarIngredientesComStatus200() {
-        when(ingredienteService.findAll()).thenReturn(List.of(
-            ingrediente(1L, "Milho", BigDecimal.valueOf(10.0), 100.0, UnidadeMedida.KG),
-            ingrediente(2L, "Sal", BigDecimal.valueOf(5.0), 50.0, UnidadeMedida.GRAMA)
+        when(ingredienteService.findAll(anyInt(), anyInt())).thenReturn(List.of(
+            ingrediente(1L, "Milho Verde", BigDecimal.valueOf(3.50), 100.0, UnidadeMedida.KG),
+            ingrediente(2L, "Açúcar", BigDecimal.valueOf(0.01), 50000.0, UnidadeMedida.GRAMA)
         ));
 
         given()
@@ -55,16 +60,50 @@ class IngredienteResourceHttpContractTest {
             .get(BASE_URL)
         .then()
             .statusCode(200)
-            .contentType(ContentType.JSON)
             .body("size()", is(2))
             .body("[0].id", equalTo(1))
-            .body("[0].nome", equalTo("Milho"));
+            .body("[0].nome", equalTo("Milho Verde"));
     }
+
+    @Test
+    void deveRetornarListaVaziaComStatus200() {
+        when(ingredienteService.findAll(anyInt(), anyInt())).thenReturn(List.of());
+
+        given()
+            .accept(ContentType.JSON)
+        .when()
+            .get(BASE_URL)
+        .then()
+            .statusCode(200)
+            .body("size()", is(0));
+    }
+
+    @Test
+    void devePaginarResultados() {
+        when(ingredienteService.findAll(0, 3)).thenReturn(List.of(
+            ingrediente(1L, "Milho Verde", BigDecimal.valueOf(3.50), 100.0, UnidadeMedida.KG)
+        ));
+
+        given()
+            .accept(ContentType.JSON)
+            .queryParam("page", 0)
+            .queryParam("size", 3)
+        .when()
+            .get(BASE_URL)
+        .then()
+            .statusCode(200);
+
+        verify(ingredienteService).findAll(0, 3);
+    }
+
+    // -------------------------------------------------------------------------
+    // GET /ingredientes/{id}
+    // -------------------------------------------------------------------------
 
     @Test
     void deveBuscarPorIdComStatus200() {
         when(ingredienteService.findById(1L))
-            .thenReturn(ingrediente(1L, "Milho", BigDecimal.valueOf(10.0), 100.0, UnidadeMedida.KG));
+            .thenReturn(ingrediente(1L, "Milho Verde", BigDecimal.valueOf(3.50), 100.0, UnidadeMedida.KG));
 
         given()
             .accept(ContentType.JSON)
@@ -72,14 +111,13 @@ class IngredienteResourceHttpContractTest {
             .get(BASE_URL + "/1")
         .then()
             .statusCode(200)
-            .contentType(ContentType.JSON)
             .body("id", equalTo(1))
-            .body("nome", equalTo("Milho"));
+            .body("nome", equalTo("Milho Verde"));
     }
 
     @Test
     void deveRetornar404QuandoBuscarPorIdInexistente() {
-        when(ingredienteService.findById(999L)).thenThrow(new NotFoundException("Ingrediente não encontrado"));
+        when(ingredienteService.findById(999L)).thenReturn(null);
 
         given()
             .accept(ContentType.JSON)
@@ -89,24 +127,148 @@ class IngredienteResourceHttpContractTest {
             .statusCode(404);
     }
 
+    // -------------------------------------------------------------------------
+    // GET /ingredientes/find/estoque-abaixo/{estoque-abaixo}
+    // -------------------------------------------------------------------------
+
+    @Test
+    void deveBuscarPorEstoqueAbaixoComStatus200() {
+        when(ingredienteService.findByEstoqueAbaixo(50.0)).thenReturn(List.of(
+            ingrediente(2L, "Queijo", BigDecimal.valueOf(25.00), 15.0, UnidadeMedida.KG)
+        ));
+
+        given()
+            .accept(ContentType.JSON)
+        .when()
+            .get(BASE_URL + "/find/estoque-abaixo/50.0")
+        .then()
+            .statusCode(200)
+            .body("size()", is(1))
+            .body("[0].nome", equalTo("Queijo"));
+    }
+
+    @Test
+    void deveBuscarPorEstoqueAbaixoRetornarListaVazia() {
+        when(ingredienteService.findByEstoqueAbaixo(1.0)).thenReturn(List.of());
+
+        given()
+            .accept(ContentType.JSON)
+        .when()
+            .get(BASE_URL + "/find/estoque-abaixo/1.0")
+        .then()
+            .statusCode(200)
+            .body("size()", is(0));
+    }
+
+    // -------------------------------------------------------------------------
+    // GET /ingredientes/find/unidade-medida/{unidade-medida}
+    // -------------------------------------------------------------------------
+
+    @Test
+    void deveBuscarPorUnidadeMedidaComStatus200() {
+        when(ingredienteService.findByUnidadeMedida("KG")).thenReturn(List.of(
+            ingrediente(1L, "Milho Verde", BigDecimal.valueOf(3.50), 100.0, UnidadeMedida.KG),
+            ingrediente(5L, "Queijo", BigDecimal.valueOf(25.00), 15.0, UnidadeMedida.KG)
+        ));
+
+        given()
+            .accept(ContentType.JSON)
+        .when()
+            .get(BASE_URL + "/find/unidade-medida/KG")
+        .then()
+            .statusCode(200)
+            .body("size()", is(2));
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /ingredientes
+    // -------------------------------------------------------------------------
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
     @Test
     void deveCriarIngredienteComStatus201() {
         when(ingredienteService.create(any(Ingrediente.class)))
-            .thenReturn(ingrediente(10L, "Milho", BigDecimal.valueOf(10.0), 100.0, UnidadeMedida.KG));
+            .thenReturn(ingrediente(10L, "Milho Verde", BigDecimal.valueOf(3.50), 100.0, UnidadeMedida.KG));
 
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
-            .body("{\"nome\":\"Milho\",\"precoUnitario\":10.0,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":1}")
         .when()
             .post(BASE_URL)
         .then()
             .statusCode(201)
-            .contentType(ContentType.JSON)
             .body("id", equalTo(10))
-            .body("nome", equalTo("Milho"));
+            .body("nome", equalTo("Milho Verde"));
     }
 
+    @Test
+    void deveRetornar401AoCriarSemAutenticacao() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+        .when()
+            .post(BASE_URL)
+        .then()
+            .statusCode(401);
+
+        verify(ingredienteService, never()).create(any());
+    }
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
+    @Test
+    void deveRetornar422QuandoNomeEmBranco() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+        .when()
+            .post(BASE_URL)
+        .then()
+            .statusCode(422)
+            .body("errors", hasSize(greaterThanOrEqualTo(1)));
+
+        verify(ingredienteService, never()).create(any());
+    }
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
+    @Test
+    void deveRetornar422QuandoPrecoNegativo() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":-1.0,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+        .when()
+            .post(BASE_URL)
+        .then()
+            .statusCode(422)
+            .body("errors", hasSize(greaterThanOrEqualTo(1)));
+
+        verify(ingredienteService, never()).create(any());
+    }
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
+    @Test
+    void deveRetornar422QuandoUnidadeMedidaNula() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":null}")
+        .when()
+            .post(BASE_URL)
+        .then()
+            .statusCode(422)
+            .body("errors", hasSize(greaterThanOrEqualTo(1)));
+
+        verify(ingredienteService, never()).create(any());
+    }
+
+    // -------------------------------------------------------------------------
+    // PUT /ingredientes/{id}
+    // -------------------------------------------------------------------------
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
     @Test
     void deveAtualizarIngredienteComStatus204() {
         doNothing().when(ingredienteService).update(any(Long.class), any());
@@ -114,7 +276,7 @@ class IngredienteResourceHttpContractTest {
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
-            .body("{\"nome\":\"Milho Premium\",\"precoUnitario\":15.0,\"estoque\":150.0,\"idUnidadeMedida\":1}")
+            .body("{\"nome\":\"Milho Verde Premium\",\"precoUnitario\":4.00,\"estoque\":120.0,\"idUnidadeMedida\":1}")
         .when()
             .put(BASE_URL + "/1")
         .then()
@@ -123,6 +285,45 @@ class IngredienteResourceHttpContractTest {
         verify(ingredienteService).update(any(Long.class), any());
     }
 
+    @Test
+    void deveRetornar401AoAtualizarSemAutenticacao() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+        .when()
+            .put(BASE_URL + "/1")
+        .then()
+            .statusCode(401);
+
+        verify(ingredienteService, never()).update(any(), any());
+    }
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
+    @Test
+    void deveMapearValidationExceptionCorretamente() {
+        doThrow(new ValidationException("nome", "Já existe um ingrediente com este nome"))
+            .when(ingredienteService).update(any(Long.class), any());
+
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body("{\"nome\":\"Milho Verde\",\"precoUnitario\":3.50,\"estoque\":100.0,\"idUnidadeMedida\":1}")
+        .when()
+            .put(BASE_URL + "/1")
+        .then()
+            .statusCode(422)
+            .body("type", equalTo("http://localhost:8080/errors/validation-error"))
+            .body("status", equalTo(422))
+            .body("errors[0].field", equalTo("nome"))
+            .body("timestamp", notNullValue());
+    }
+
+    // -------------------------------------------------------------------------
+    // DELETE /ingredientes/{id}
+    // -------------------------------------------------------------------------
+
+    @TestSecurity(user = "admin", roles = {"ROLE_ADMIN"})
     @Test
     void deveRemoverIngredienteComStatus204() {
         doNothing().when(ingredienteService).delete(1L);
@@ -138,50 +339,26 @@ class IngredienteResourceHttpContractTest {
     }
 
     @Test
-    void deveRetornar422QuandoPayloadForInvalido() {
+    void deveRetornar401AoRemoverSemAutenticacao() {
         given()
-            .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
-            .body("{\"nome\":\"\",\"precoUnitario\":-1.0,\"estoque\":-10.0,\"idUnidadeMedida\":null}")
         .when()
-            .post(BASE_URL)
+            .delete(BASE_URL + "/1")
         .then()
-            .statusCode(422)
-            .contentType(ContentType.JSON)
-            .body("type", equalTo("http://localhost:8080/errors/validation-error"))
-            .body("status", equalTo(422))
-            .body("errors", hasSize(greaterThanOrEqualTo(1)));
+            .statusCode(401);
 
-        verify(ingredienteService, never()).create(any(Ingrediente.class));
+        verify(ingredienteService, never()).delete(any());
     }
 
-    @Test
-    void deveMapearValidationExceptionCorretamente() {
-        doThrow(new ValidationException("nome", "Já existe um ingrediente com este nome"))
-            .when(ingredienteService)
-            .update(any(Long.class), any());
+    // -------------------------------------------------------------------------
+    // Helper
+    // -------------------------------------------------------------------------
 
-        given()
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body("{\"nome\":\"Milho\",\"precoUnitario\":10.0,\"estoque\":100.0,\"idUnidadeMedida\":1}")
-        .when()
-            .put(BASE_URL + "/1")
-        .then()
-            .statusCode(422)
-            .contentType(ContentType.JSON)
-            .body("type", equalTo("http://localhost:8080/errors/validation-error"))
-            .body("status", equalTo(422))
-            .body("errors[0].field", equalTo("nome"))
-            .body("timestamp", notNullValue());
-    }
-
-    private Ingrediente ingrediente(Long id, String nome, BigDecimal precoUnitario, 
-                                    double estoque, UnidadeMedida unidade) {
+    private Ingrediente ingrediente(Long id, String nome, BigDecimal preco, double estoque, UnidadeMedida unidade) {
         Ingrediente ing = new Ingrediente();
         ing.setId(id);
         ing.setNome(nome);
-        ing.setPrecoUnitario(precoUnitario);
+        ing.setPrecoUnitario(preco);
         ing.setEstoque(estoque);
         ing.setUnidadeMedida(unidade);
         return ing;

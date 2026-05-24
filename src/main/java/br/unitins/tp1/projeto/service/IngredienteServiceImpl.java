@@ -19,8 +19,8 @@ public class IngredienteServiceImpl implements IngredienteService {
 
     
     @Override
-    public List<Ingrediente> findAll() {
-        return repository.findAll().list();
+    public List<Ingrediente> findAll(int page, int size) {
+        return repository.findAll().page(page, size).list();
     }
 
     @Override

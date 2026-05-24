@@ -7,17 +7,21 @@ import br.unitins.tp1.projeto.dto.EmbalagemResponseDTO;
 import br.unitins.tp1.projeto.mapper.EmbalagemMapper;
 import br.unitins.tp1.projeto.model.Embalagem;
 import br.unitins.tp1.projeto.service.EmbalagemService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -31,6 +35,7 @@ public class EmbalagemResource {
 
     @POST
     @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response incluir(@Valid EmbalagemRequestDTO dto) {
         Embalagem embalagem = service.create(dto);
         return Response.status(Response.Status.CREATED)
@@ -39,14 +44,18 @@ public class EmbalagemResource {
     }
 
     @GET
-    public List<EmbalagemResponseDTO> buscarTodos() {
-        return service.findAll().stream().map(EmbalagemMapper::toResponseDTO).toList();
+    public List<EmbalagemResponseDTO> buscarTodos(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return service.findAll(page, size).stream().map(EmbalagemMapper::toResponseDTO).toList();
     }
 
     @GET
     @Path("/{id}")
     public EmbalagemResponseDTO encontrarPorId(@PathParam("id") long id) {
-        return EmbalagemMapper.toResponseDTO(service.findById(id));
+        Embalagem embalagem = service.findById(id);
+        if (embalagem == null) throw new NotFoundException("Embalagem não encontrada");
+        return EmbalagemMapper.toResponseDTO(embalagem);
     }
 
     @GET
@@ -70,6 +79,7 @@ public class EmbalagemResource {
     @PUT
     @Path("/{id}")
     @Transactional
+    @RolesAllowed("ROLE_ADMIN")
     public Response atualizar(@PathParam("id") Long id, @Valid EmbalagemRequestDTO dto) {
         service.update(id, dto);
         return Response.noContent().build();
@@ -77,6 +87,7 @@ public class EmbalagemResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("ROLE_ADMIN")
     public Response delete(@PathParam("id") long id) {
         service.delete(id);
         return Response.noContent().build();

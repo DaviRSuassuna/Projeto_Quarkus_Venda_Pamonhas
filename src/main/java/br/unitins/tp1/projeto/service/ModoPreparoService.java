@@ -7,7 +7,7 @@ import br.unitins.tp1.projeto.model.ModoPreparo;
 
 public interface ModoPreparoService {
 
-    List<ModoPreparo> findAll();
+    List<ModoPreparo> findAll(int page, int size);
 
     ModoPreparo findById(Long id);
 
