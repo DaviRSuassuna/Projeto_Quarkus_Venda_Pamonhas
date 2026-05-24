@@ -1,0 +1,74 @@
+@startuml casosDeUso
+left to right direction
+
+actor Cliente
+actor Administrador
+
+rectangle "E-commerce" {
+
+  ' --- Acesso ---
+  Cliente --> (Login)
+  Cliente --> (Cadastrar Usuário)
+  Cliente --> (Recuperar Senha)
+
+  (Cadastrar Usuário) .> (Cadastro Simples) : <<include>>
+  (Cadastrar Usuário) .> (Cadastro Completo) : <<extend>>
+
+  ' --- Catálogo ---
+  Cliente --> (Buscar Produtos)
+  Cliente --> (Buscar Produto por ID)
+
+  ' --- Área do Cliente ---
+  Cliente --> (Gerenciar Lista de Desejos)
+  Cliente --> (Gerenciar Endereços)
+  Cliente --> (Realizar Pedido)
+  Cliente --> (Consultar Histórico de Compras)
+  Cliente --> (Editar Dados Pessoais)
+  Cliente --> (Alterar Senha)
+
+  (Gerenciar Lista de Desejos) .> (Adicionar à Lista) : <<include>>
+  (Gerenciar Lista de Desejos) .> (Remover da Lista) : <<include>>
+
+  (Realizar Pedido) .> (Adicionar Item) : <<include>>
+  (Realizar Pedido) .> (Remover Item) : <<include>>
+  (Realizar Pedido) .> (Definir Endereço de Entrega) : <<include>>
+  (Realizar Pedido) .> (Efetuar Pagamento) : <<include>>
+  (Realizar Pedido) .> (Aplicar Cupom) : <<extend>>
+
+  (Efetuar Pagamento) .> (Escolher Forma de Pagamento) : <<include>>
+}
+
+rectangle "Administrativo" {
+
+  ' --- Acesso ---
+  Administrador --> (Login)
+
+  ' --- Gestão ---
+  Administrador --> (Gerenciar Pamonhas)
+  Administrador --> (Gerenciar Ingredientes)
+  Administrador --> (Gerenciar Categorias)
+  Administrador --> (Gerenciar Embalagens)
+  Administrador --> (Gerenciar Cupons)
+  Administrador --> (Gerenciar Clientes)
+  Administrador --> (Gerenciar Pedidos)
+
+  (Gerenciar Pamonhas) .> (Cadastrar Pamonha) : <<include>>
+  (Gerenciar Pamonhas) .> (Atualizar Pamonha) : <<include>>
+  (Gerenciar Pamonhas) .> (Remover Pamonha) : <<include>>
+  (Gerenciar Pamonhas) .> (Gerenciar Receita) : <<include>>
+
+  (Gerenciar Receita) .> (Adicionar Ingrediente) : <<include>>
+  (Gerenciar Receita) .> (Remover Ingrediente) : <<include>>
+
+  (Gerenciar Ingredientes) .> (Cadastrar Ingrediente) : <<include>>
+  (Gerenciar Ingredientes) .> (Atualizar Ingrediente) : <<include>>
+  (Gerenciar Ingredientes) .> (Controlar Estoque) : <<include>>
+
+  (Gerenciar Cupons) .> (Cadastrar Cupom) : <<include>>
+  (Gerenciar Cupons) .> (Validar Cupom) : <<include>>
+  (Gerenciar Cupons) .> (Ativar/Inativar Cupom) : <<include>>
+
+  (Gerenciar Pedidos) .> (Alterar Status do Pedido) : <<include>>
+}
+
+@enduml

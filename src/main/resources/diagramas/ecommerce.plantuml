@@ -1,0 +1,196 @@
+@startuml e-commerce
+
+left to right direction
+
+class Endereco {
+    - id: Long
+    - rua: String
+    - numero: String
+    - complemento: String
+    - bairro: String
+    - cep: String
+}
+
+class EnderecoEntrega {
+    - id: Long
+    - rua: String
+    - numero: String
+    - complemento: String
+    - bairro: String
+    - cep: String
+}
+
+class Cidade {
+    - id: Long
+    - nome: String
+}
+
+class Estado {
+    - id: Long
+    - nome: String
+    - sigla: String
+}
+
+class Pessoa {
+    - id: Long
+    - nome: String
+    - email: String
+    - telefone: String
+    - dataNascimento: LocalDate
+}
+
+class PessoaFisica {
+    - sobrenome: String
+    - cpf: String
+}
+
+class Usuario {
+    - id: Long
+    - login: String
+    - senha: String
+    - keycloakId: String
+}
+
+class ListaDesejos {
+    - id: Long
+}
+
+class TokenRecuperacaoSenha {
+    - id: Long
+    - token: String
+    - dataExpiracao: LocalDateTime
+    - usado: boolean
+}
+
+enum Perfil {
+    ADMIN
+    CLIENTE
+}
+
+class Pamonha {
+    - id: Long
+    - nome: String
+    - descricao: String
+    - preco: BigDecimal
+    - estoque: Integer
+}
+
+note bottom of Pamonha
+  Visão parcial para o contexto
+  de e-commerce. Ver diagrama
+  administrativo para detalhes
+  completos (receita, embalagem,
+  tabela nutricional, etc.)
+end note
+
+class Pedido {
+    - id: Long
+    - dataCriacao: LocalDateTime
+    - total: BigDecimal
+    - desconto: BigDecimal
+}
+
+class Item {
+    - id: Long
+    - quantidade: Integer
+    - valorUnitario: BigDecimal
+    - descontoUnitario: BigDecimal
+}
+
+class CupomDesconto {
+    - id: Long
+    - codigo: String
+    - descricao: String
+    - valorDesconto: BigDecimal
+    - dataValidade: LocalDate
+}
+
+class Pagamento {
+    - id: Long
+    - dataPagamento: LocalDateTime
+    - valor: BigDecimal
+}
+
+enum StatusPedido {
+    AGUARDANDO_PAGAMENTO
+    PAGO
+    EM_PREPARACAO
+    ENVIADO
+    ENTREGUE
+    CANCELADO
+}
+
+enum StatusPagamento {
+    PENDENTE
+    APROVADO
+    RECUSADO
+    ESTORNADO
+}
+
+enum FormaPagamento {
+    PIX
+    CARTAO_CREDITO
+    CARTAO_DEBITO
+    BOLETO
+}
+
+together {
+    class Estado
+    class Cidade
+}
+
+together {
+    class Endereco
+    class EnderecoEntrega
+}
+
+together {
+    class Pedido
+    class Item
+    class CupomDesconto
+    enum StatusPedido
+}
+
+together {
+    class Pagamento
+    enum FormaPagamento
+    enum StatusPagamento
+}
+
+together {
+    class ListaDesejos
+    class TokenRecuperacaoSenha
+    enum Perfil
+}
+
+Pessoa <|-- PessoaFisica
+
+Usuario "1" -- "0..1" PessoaFisica
+
+Pedido "1" *-- "*" Item
+Pedido "*" -- "0..1" CupomDesconto
+Pedido "*" -- "1" Usuario
+Pedido "1" *-- "1" EnderecoEntrega
+Pedido "1" *-- "1" Pagamento
+Pedido "*" --> "1" StatusPedido
+
+Item "*" --> "1" Pamonha
+
+CupomDesconto "1" o-- "*" Pamonha
+
+Usuario "*" -- "*" Perfil
+Usuario "1" *-- "1" ListaDesejos
+Usuario "1" *-- "*" TokenRecuperacaoSenha
+
+ListaDesejos "*" -- "*" Pamonha
+
+PessoaFisica "1" o-- "*" Endereco
+
+Pagamento "*" --> "1" FormaPagamento
+Pagamento "*" --> "1" StatusPagamento
+
+Endereco "*" -- "1" Cidade
+EnderecoEntrega "*" -- "1" Cidade
+Cidade "*" -- "1" Estado
+
+@enduml
