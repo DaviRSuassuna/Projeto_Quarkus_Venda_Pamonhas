@@ -1,6 +1,9 @@
 -- Import inicial de dados
-INSERT INTO usuario (login, senha, perfil, data_cadastro) VALUES
-('admin', '$2a$10$P0..VOZ8wzas1xrY7wPcEOhNi8gMhURNJKSQrge/7zzhLyaPRKh1i', 'ROLE_ADMIN', NOW());
+INSERT INTO usuario (id, login, senha, data_cadastro) VALUES
+(1, 'admin', '$2a$10$P0..VOZ8wzas1xrY7wPcEOhNi8gMhURNJKSQrge/7zzhLyaPRKh1i', NOW());
+
+INSERT INTO usuario_perfis (usuario_id, perfil) VALUES
+(1, 'ROLE_ADMIN');
 -- Data inicial adaptada ao modelo atual do projeto.
 -- Senha: pamonha123
 
@@ -49,6 +52,7 @@ INSERT INTO pamonha_categoria (pamonha_id, categoria_id) VALUES
 (2, 2);
 
 -- Reinicia as sequences para evitar conflito de chave primária após inserts com IDs explícitos
+ALTER TABLE usuario ALTER COLUMN id RESTART WITH 2;
 ALTER TABLE ingrediente ALTER COLUMN id RESTART WITH 6;
 ALTER TABLE categoria ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE modo_preparo ALTER COLUMN id RESTART WITH 3;

@@ -2,6 +2,8 @@ package br.unitins.tp1.projeto.resource;
 
 import java.util.List;
 
+import br.unitins.tp1.projeto.dto.CategoriaResponseDTO;
+import br.unitins.tp1.projeto.dto.PamonhaEcommerceResponseDTO;
 import br.unitins.tp1.projeto.dto.PamonhaRequestDTO;
 import br.unitins.tp1.projeto.dto.PamonhaResponseDTO;
 import br.unitins.tp1.projeto.mapper.PamonhaMapper;
@@ -83,6 +85,36 @@ public class PamonhaResource {
     public Response delete(@PathParam("id") long id) {
         service.delete(id);
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/ecommerce")
+    public List<PamonhaEcommerceResponseDTO> buscarParaEcommerce(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return service.findAll(page, size).stream()
+                .map(p -> new PamonhaEcommerceResponseDTO(
+                    p.getId(), p.getNome(), p.getDescricao(),
+                    p.getPreco(), p.getEstoque(),
+                    p.getCategorias().stream()
+                        .map(c -> new CategoriaResponseDTO(c.getId(), c.getNome(), c.getDescricao()))
+                        .toList()
+                ))
+                .toList();
+    }
+
+    @GET
+    @Path("/ecommerce/{id}")
+    public PamonhaEcommerceResponseDTO buscarPorIdParaEcommerce(@PathParam("id") Long id) {
+        Pamonha p = service.findById(id);
+        if (p == null) throw new NotFoundException("Pamonha não encontrada");
+        return new PamonhaEcommerceResponseDTO(
+            p.getId(), p.getNome(), p.getDescricao(),
+            p.getPreco(), p.getEstoque(),
+            p.getCategorias().stream()
+                .map(c -> new CategoriaResponseDTO(c.getId(), c.getNome(), c.getDescricao()))
+                .toList()
+        );
     }
 }
 
