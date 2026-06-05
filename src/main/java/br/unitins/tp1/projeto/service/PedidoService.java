@@ -10,7 +10,7 @@ public interface PedidoService {
 
     PedidoResponseDTO criar(String login, PedidoRequestDTO dto);
 
-    List<PedidoResponseDTO> listarPorUsuario(String login);
+    List<PedidoResponseDTO> listarPorUsuario(String login, int page, int size);
 
     PedidoResponseDTO buscarPorId(String login, Long id);
 

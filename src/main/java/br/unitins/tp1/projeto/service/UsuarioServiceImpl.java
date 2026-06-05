@@ -42,35 +42,35 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void cadastrarSimples(CadastroSimplesRequestDTO dto) {
-        if (usuarioRepository.find("login", dto.login()).firstResult() != null) {
-            throw new ValidationException("login", "Login já cadastrado");
+        if (pessoaFisicaRepository.findByEmail(dto.email()) != null) {
+            throw new ValidationException("email", "Email já cadastrado");
         }
 
         Usuario usuario = new Usuario();
-        usuario.setLogin(dto.login());
+        usuario.setEmail(dto.email());
         usuario.setSenha(BCrypt.hashpw(dto.senha(), BCrypt.gensalt()));
         usuario.setPerfis(List.of(Perfil.ROLE_USER));
         usuarioRepository.persist(usuario);
 
         try {
-            String keycloakId = keycloakService.registrarUsuario(dto.login(), dto.senha(), "ROLE_USER");
+            String keycloakId = keycloakService.registrarUsuario(dto.email(), dto.senha(), "ROLE_USER");
             if (keycloakId != null) {
                 usuario.setKeycloakId(keycloakId);
             }
         } catch (Exception e) {
-            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.login(), e.getMessage());
+            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.email(), e.getMessage());
         }
     }
 
     @Override
     @Transactional
     public void cadastrarCompleto(CadastroCompletoRequestDTO dto) {
-        if (usuarioRepository.find("login", dto.login()).firstResult() != null) {
-            throw new ValidationException("login", "Login já cadastrado");
+        if (pessoaFisicaRepository.findByEmail(dto.email()) != null) {
+            throw new ValidationException("email", "Email já cadastrado");
         }
 
         Usuario usuario = new Usuario();
-        usuario.setLogin(dto.login());
+        usuario.setEmail(dto.email());
         usuario.setSenha(BCrypt.hashpw(dto.senha(), BCrypt.gensalt()));
         usuario.setPerfis(List.of(Perfil.ROLE_USER));
         usuarioRepository.persist(usuario);
@@ -90,23 +90,23 @@ public class UsuarioServiceImpl implements UsuarioService {
         listaDesejosRepository.persist(lista);
 
         try {
-            String keycloakId = keycloakService.registrarUsuario(dto.login(), dto.senha(), "ROLE_USER");
+            String keycloakId = keycloakService.registrarUsuario(dto.email(), dto.senha(), "ROLE_USER");
             if (keycloakId != null) {
                 usuario.setKeycloakId(keycloakId);
             }
         } catch (Exception e) {
-            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.login(), e.getMessage());
+            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.email(), e.getMessage());
         }
     }
 
     @Override
     public UsuarioResponseDTO buscarDadosLogado(String login) {
-        Usuario usuario = usuarioRepository.find("login", login).firstResult();
+        Usuario usuario = usuarioRepository.find("email", login).firstResult();
         if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
-        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioLogin(login);
+        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(login);
         return new UsuarioResponseDTO(
             usuario.getId(),
-            usuario.getLogin(),
+            usuario.getEmail(),
             pf != null ? pf.getNome() : null,
             pf != null ? pf.getEmail() : null
         );
@@ -115,18 +115,31 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void editarDados(String login, EditarUsuarioRequestDTO dto) {
-        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioLogin(login);
-        if (pf == null) throw new jakarta.ws.rs.NotFoundException("Perfil completo não encontrado");
+        Usuario usuario = usuarioRepository.find("email", login).firstResult();
+        if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
+
+        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(login);
+        boolean novo = false;
+        if (pf == null) {
+            pf = new PessoaFisica();
+            pf.setUsuario(usuario);
+            novo = true;
+        }
+
         if (dto.nome() != null) pf.setNome(dto.nome());
+        if (dto.sobrenome() != null) pf.setSobrenome(dto.sobrenome());
         if (dto.email() != null) pf.setEmail(dto.email());
         if (dto.telefone() != null) pf.setTelefone(dto.telefone());
+        if (dto.cpf() != null) pf.setCpf(dto.cpf());
+        if (dto.dataNascimento() != null) pf.setDataNascimento(dto.dataNascimento());
+
         pessoaFisicaRepository.persist(pf);
     }
 
     @Override
     @Transactional
     public void alterarSenha(String login, AlterarSenhaRequestDTO dto) {
-        Usuario usuario = usuarioRepository.find("login", login).firstResult();
+        Usuario usuario = usuarioRepository.find("email", login).firstResult();
         if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
         if (!BCrypt.checkpw(dto.senhaAtual(), usuario.getSenha())) {
             throw new ValidationException("senhaAtual", "Senha incorreta");

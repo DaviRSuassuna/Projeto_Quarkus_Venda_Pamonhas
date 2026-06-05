@@ -7,7 +7,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class PessoaFisicaRepository implements PanacheRepository<PessoaFisica> {
 
-    public PessoaFisica findByUsuarioLogin(String login) {
-        return find("usuario.login", login).firstResult();
+    public PessoaFisica findByUsuarioEmail(String email) {
+        return find("usuario.email", email).firstResult();
+    }
+
+    public PessoaFisica findByEmail(String email) {
+        return find("email", email).firstResult();
     }
 }

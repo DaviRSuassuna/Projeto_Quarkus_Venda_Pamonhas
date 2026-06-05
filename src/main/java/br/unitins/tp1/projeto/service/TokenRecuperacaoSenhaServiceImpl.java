@@ -7,10 +7,15 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import br.unitins.tp1.projeto.dto.RedefinirSenhaRequestDTO;
 import br.unitins.tp1.projeto.exception.ValidationException;
+import br.unitins.tp1.projeto.model.PessoaFisica;
 import br.unitins.tp1.projeto.model.TokenRecuperacaoSenha;
 import br.unitins.tp1.projeto.model.Usuario;
+import br.unitins.tp1.projeto.repository.PessoaFisicaRepository;
 import br.unitins.tp1.projeto.repository.TokenRecuperacaoSenhaRepository;
 import br.unitins.tp1.projeto.repository.UsuarioRepository;
+import io.quarkus.logging.Log;
+import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.Mailer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -24,11 +29,21 @@ public class TokenRecuperacaoSenhaServiceImpl implements TokenRecuperacaoSenhaSe
     @Inject
     TokenRecuperacaoSenhaRepository tokenRepository;
 
+    @Inject
+    PessoaFisicaRepository pessoaFisicaRepository;
+
+    @Inject
+    Mailer mailer;
+
+    @Inject
+    KeycloakService keycloakService;
+
     @Override
     @Transactional
-    public String solicitarRecuperacao(String login) {
-        Usuario usuario = usuarioRepository.find("login", login).firstResult();
-        if (usuario == null) return null;
+    public String solicitarRecuperacao(String email) {
+        PessoaFisica pessoaFisica = pessoaFisicaRepository.findByEmail(email);
+        if (pessoaFisica == null) return null;
+        Usuario usuario = pessoaFisica.getUsuario();
 
         String tokenStr = UUID.randomUUID().toString();
         TokenRecuperacaoSenha token = new TokenRecuperacaoSenha();
@@ -37,6 +52,19 @@ public class TokenRecuperacaoSenhaServiceImpl implements TokenRecuperacaoSenhaSe
         token.setUsado(false);
         token.setUsuario(usuario);
         tokenRepository.persist(token);
+
+        if (pessoaFisica.getEmail() != null) {
+            mailer.send(Mail.withText(
+                pessoaFisica.getEmail(),
+                "Recuperação de Senha - Venda de Pamonhas",
+                "Olá, " + pessoaFisica.getNome() + "!\n\n" +
+                "Seu código para redefinir a senha é:\n\n" +
+                tokenStr +
+                "\n\nEste código expira em 2 horas.\n\n" +
+                "Se não foi você quem solicitou, ignore este email."
+            ));
+        }
+
         return tokenStr;
     }
 
@@ -52,5 +80,13 @@ public class TokenRecuperacaoSenhaServiceImpl implements TokenRecuperacaoSenhaSe
         usuarioRepository.persist(usuario);
         token.setUsado(true);
         tokenRepository.persist(token);
+
+        try {
+            if (usuario.getKeycloakId() != null) {
+                keycloakService.atualizarSenha(usuario.getKeycloakId(), dto.novaSenha());
+            }
+        } catch (Exception e) {
+            Log.warnf("Não foi possível atualizar senha no Keycloak para '%s': %s", usuario.getEmail(), e.getMessage());
+        }
     }
 }

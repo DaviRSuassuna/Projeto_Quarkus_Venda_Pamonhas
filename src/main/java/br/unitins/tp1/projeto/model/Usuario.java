@@ -17,8 +17,8 @@ import jakarta.persistence.Table;
 @Table(name = "usuario")
 public class Usuario extends DefaultEntity {
 
-    @Column(name = "login", unique = true)
-    private String login;
+    @Column(name = "email", unique = true)
+    private String email;
 
     @Column(name = "senha")
     private String senha;
@@ -32,12 +32,12 @@ public class Usuario extends DefaultEntity {
     @Column(name = "keycloak_id")
     private String keycloakId;
 
-    public String getLogin() {
-        return login;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getSenha() {

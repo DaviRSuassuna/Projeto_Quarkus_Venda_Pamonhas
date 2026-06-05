@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ListaDesejosRepository implements PanacheRepository<ListaDesejos> {
 
-    public ListaDesejos findByUsuario(String login) {
-        return find("usuario.login", login).firstResult();
+    public ListaDesejos findByUsuario(String email) {
+        return find("usuario.email", email).firstResult();
     }
 }

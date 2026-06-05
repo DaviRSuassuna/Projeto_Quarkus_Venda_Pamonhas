@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class EnderecoRepository implements PanacheRepository<Endereco> {
 
-    public List<Endereco> findByUsuario(String login) {
-        return list("pessoaFisica.usuario.login", login);
+    public List<Endereco> findByUsuario(String email) {
+        return list("pessoaFisica.usuario.email", email);
     }
 }

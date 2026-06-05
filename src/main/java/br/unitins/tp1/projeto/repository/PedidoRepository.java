@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class PedidoRepository implements PanacheRepository<Pedido> {
 
-    public List<Pedido> findByUsuario(String login) {
-        return list("usuario.login", login);
+    public List<Pedido> findByUsuario(String email) {
+        return list("usuario.email", email);
     }
 }

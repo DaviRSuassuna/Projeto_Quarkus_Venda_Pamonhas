@@ -70,13 +70,14 @@ public class KeycloakServiceImpl implements KeycloakService {
             String url = baseUrl + "/admin/realms/" + realm + "/users";
 
             Map<String, Object> payload = Map.of(
-            "username", login,
-            "enabled", true,
-            "emailVerified", true,
-            "credentials", List.of(Map.of(
-                "type", "password",
-                "value", senha,
-                "temporary", false
+                "username", login,
+                "email", login,
+                "enabled", true,
+                "emailVerified", true,
+                "credentials", List.of(Map.of(
+                    "type", "password",
+                    "value", senha,
+                    "temporary", false
                 ))
             );
 

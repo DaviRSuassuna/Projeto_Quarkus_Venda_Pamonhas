@@ -17,7 +17,7 @@ public class JwtService {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
         return Jwt.issuer("venda-pamonhas-api")
-                .upn(usuario.getLogin())
+                .upn(usuario.getEmail())
                 .groups(grupos)
                 .expiresIn(EXPIRACAO_SEGUNDOS)
                 .sign();

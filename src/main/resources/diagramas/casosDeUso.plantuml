@@ -69,6 +69,17 @@ rectangle "Administrativo" {
   (Gerenciar Cupons) .> (Ativar/Inativar Cupom) : <<include>>
 
   (Gerenciar Pedidos) .> (Alterar Status do Pedido) : <<include>>
+
+  Administrador --> (Gerenciar Estados)
+  Administrador --> (Gerenciar Cidades)
+
+  (Gerenciar Estados) .> (Cadastrar Estado) : <<include>>
+  (Gerenciar Estados) .> (Atualizar Estado) : <<include>>
+  (Gerenciar Estados) .> (Remover Estado) : <<include>>
+
+  (Gerenciar Cidades) .> (Cadastrar Cidade) : <<include>>
+  (Gerenciar Cidades) .> (Atualizar Cidade) : <<include>>
+  (Gerenciar Cidades) .> (Remover Cidade) : <<include>>
 }
 
 @enduml

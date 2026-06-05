@@ -18,6 +18,7 @@ import br.unitins.tp1.projeto.model.Item;
 import br.unitins.tp1.projeto.model.Pagamento;
 import br.unitins.tp1.projeto.model.Pamonha;
 import br.unitins.tp1.projeto.model.Pedido;
+import br.unitins.tp1.projeto.model.PessoaFisica;
 import br.unitins.tp1.projeto.model.StatusPagamento;
 import br.unitins.tp1.projeto.model.StatusPedido;
 import br.unitins.tp1.projeto.model.Usuario;
@@ -25,6 +26,7 @@ import br.unitins.tp1.projeto.repository.CupomDescontoRepository;
 import br.unitins.tp1.projeto.repository.EnderecoRepository;
 import br.unitins.tp1.projeto.repository.PamonhaRepository;
 import br.unitins.tp1.projeto.repository.PedidoRepository;
+import br.unitins.tp1.projeto.repository.PessoaFisicaRepository;
 import br.unitins.tp1.projeto.repository.UsuarioRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -51,15 +53,23 @@ public class PedidoServiceImpl implements PedidoService {
     @Inject
     CupomDescontoRepository cupomDescontoRepository;
 
+    @Inject
+    PessoaFisicaRepository pessoaFisicaRepository;
+
     @Override
     @Transactional
     public PedidoResponseDTO criar(String login, PedidoRequestDTO dto) {
-        Usuario usuario = usuarioRepository.find("login", login).firstResult();
+        Usuario usuario = usuarioRepository.find("email", login).firstResult();
         if (usuario == null) throw new NotFoundException("Usuário não encontrado");
+
+        PessoaFisica pessoaFisica = pessoaFisicaRepository.findByUsuarioEmail(login);
+        if (pessoaFisica == null) {
+            throw new ValidationException("cadastro", "É necessário ter cadastro completo (dados pessoais) para realizar pedidos. Complete seu perfil antes de comprar.");
+        }
 
         Endereco endereco = enderecoRepository.findById(dto.enderecoId());
         if (endereco == null) throw new ValidationException("enderecoId", "Endereço não encontrado");
-        if (!endereco.getPessoaFisica().getUsuario().getLogin().equals(login)) {
+        if (!endereco.getPessoaFisica().getUsuario().getEmail().equals(login)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
 
@@ -132,8 +142,9 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public List<PedidoResponseDTO> listarPorUsuario(String login) {
-        return pedidoRepository.findByUsuario(login).stream()
+    public List<PedidoResponseDTO> listarPorUsuario(String login, int page, int size) {
+        return pedidoRepository.find("usuario.email", login)
+                .page(page, size).list().stream()
                 .map(this::toPedidoResponseDTO)
                 .toList();
     }
@@ -142,7 +153,7 @@ public class PedidoServiceImpl implements PedidoService {
     public PedidoResponseDTO buscarPorId(String login, Long id) {
         Pedido pedido = pedidoRepository.findById(id);
         if (pedido == null) throw new NotFoundException("Pedido não encontrado");
-        if (!pedido.getUsuario().getLogin().equals(login)) {
+        if (!pedido.getUsuario().getEmail().equals(login)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return toPedidoResponseDTO(pedido);

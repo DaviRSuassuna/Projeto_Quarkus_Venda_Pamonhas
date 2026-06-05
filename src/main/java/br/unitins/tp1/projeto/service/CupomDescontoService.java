@@ -9,7 +9,7 @@ public interface CupomDescontoService {
 
     CupomDescontoResponseDTO criar(CupomDescontoRequestDTO dto);
 
-    List<CupomDescontoResponseDTO> listarTodos();
+    List<CupomDescontoResponseDTO> listarTodos(int page, int size);
 
     CupomDescontoResponseDTO validarCodigo(String codigo);
 

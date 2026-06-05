@@ -1,21 +1,23 @@
 package br.unitins.tp1.projeto.dto.auth;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequestDTO {
 
+    @Email
     @NotBlank
-    private String login;
+    private String email;
 
     @NotBlank
     private String senha;
 
-    public String getLogin() {
-        return login;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getSenha() {

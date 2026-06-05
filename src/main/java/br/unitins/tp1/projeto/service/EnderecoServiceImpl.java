@@ -30,8 +30,9 @@ public class EnderecoServiceImpl implements EnderecoService {
     CidadeRepository cidadeRepository;
 
     @Override
-    public List<EnderecoResponseDTO> listarPorUsuario(String login) {
-        return enderecoRepository.findByUsuario(login).stream()
+    public List<EnderecoResponseDTO> listarPorUsuario(String login, int page, int size) {
+        return enderecoRepository.find("pessoaFisica.usuario.email", login)
+                .page(page, size).list().stream()
                 .map(this::toResponseDTO)
                 .toList();
     }
@@ -39,7 +40,7 @@ public class EnderecoServiceImpl implements EnderecoService {
     @Override
     @Transactional
     public EnderecoResponseDTO criar(String login, EnderecoRequestDTO dto) {
-        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioLogin(login);
+        PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(login);
         if (pf == null) throw new ValidationException("Usuário não possui perfil completo");
         Cidade cidade = cidadeRepository.findById(dto.cidadeId());
         if (cidade == null) throw new ValidationException("cidadeId", "Cidade não encontrada");
@@ -60,7 +61,7 @@ public class EnderecoServiceImpl implements EnderecoService {
     public void deletar(String login, Long id) {
         Endereco endereco = enderecoRepository.findById(id);
         if (endereco == null) throw new jakarta.ws.rs.NotFoundException("Endereço não encontrado");
-        if (!endereco.getPessoaFisica().getUsuario().getLogin().equals(login)) {
+        if (!endereco.getPessoaFisica().getUsuario().getEmail().equals(login)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         enderecoRepository.delete(endereco);

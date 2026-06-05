@@ -42,8 +42,8 @@ public class CupomDescontoServiceImpl implements CupomDescontoService {
     }
 
     @Override
-    public List<CupomDescontoResponseDTO> listarTodos() {
-        return cupomDescontoRepository.listAll().stream()
+    public List<CupomDescontoResponseDTO> listarTodos(int page, int size) {
+        return cupomDescontoRepository.findAll().page(page, size).list().stream()
                 .map(this::toResponseDTO)
                 .toList();
     }
