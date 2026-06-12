@@ -100,7 +100,17 @@ public class PedidoServiceImpl implements PedidoService {
             if (cupom.getDataValidade().isBefore(LocalDate.now())) {
                 throw new ValidationException("cupomId", "Cupom expirado");
             }
-            desconto = cupom.getValorDesconto();
+            if (!cupom.getPamonhas().isEmpty()) {
+                List<Long> pamonhaIdsNoPedido = itens.stream()
+                        .map(i -> i.getPamonha().getId())
+                        .toList();
+                boolean temPamonhaValida = cupom.getPamonhas().stream()
+                        .anyMatch(p -> pamonhaIdsNoPedido.contains(p.getId()));
+                if (!temPamonhaValida) {
+                    throw new ValidationException("cupomId", "Cupom não é válido para os itens deste pedido");
+                }
+            }
+            desconto = cupom.getValorDesconto().compareTo(totalBruto) > 0 ? totalBruto : cupom.getValorDesconto();
         }
 
         BigDecimal total = totalBruto.subtract(desconto);

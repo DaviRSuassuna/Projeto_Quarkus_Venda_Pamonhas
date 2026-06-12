@@ -2,12 +2,10 @@ package br.unitins.tp1.projeto.service;
 
 import java.util.List;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
-import org.mindrot.jbcrypt.BCrypt;
 
-import br.unitins.tp1.projeto.dto.AlterarSenhaRequestDTO;
-import br.unitins.tp1.projeto.dto.CadastroCompletoRequestDTO;
-import br.unitins.tp1.projeto.dto.CadastroSimplesRequestDTO;
+import br.unitins.tp1.projeto.dto.AtualizarUsuarioAdminRequestDTO;
 import br.unitins.tp1.projeto.dto.EditarUsuarioRequestDTO;
 import br.unitins.tp1.projeto.dto.UsuarioResponseDTO;
 import br.unitins.tp1.projeto.exception.ValidationException;
@@ -18,9 +16,11 @@ import br.unitins.tp1.projeto.model.Usuario;
 import br.unitins.tp1.projeto.repository.ListaDesejosRepository;
 import br.unitins.tp1.projeto.repository.PessoaFisicaRepository;
 import br.unitins.tp1.projeto.repository.UsuarioRepository;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class UsuarioServiceImpl implements UsuarioService {
@@ -39,70 +39,42 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Inject
     KeycloakService keycloakService;
 
-    @Override
-    @Transactional
-    public void cadastrarSimples(CadastroSimplesRequestDTO dto) {
-        if (pessoaFisicaRepository.findByEmail(dto.email()) != null) {
-            throw new ValidationException("email", "Email já cadastrado");
-        }
+    @Inject
+    JsonWebToken jwt;
 
-        Usuario usuario = new Usuario();
-        usuario.setEmail(dto.email());
-        usuario.setSenha(BCrypt.hashpw(dto.senha(), BCrypt.gensalt()));
-        usuario.setPerfis(List.of(Perfil.ROLE_USER));
+    @Inject
+    SecurityIdentity identity;
+
+    private Usuario garantirUsuarioLocal(String login) {
+        Usuario usuario = usuarioRepository.find("email", login).firstResult();
+        if (usuario != null) return usuario;
+
+        usuario = new Usuario();
+        usuario.setEmail(login);
+        usuario.setKeycloakId(jwt.getSubject());
+
+        List<Perfil> perfis = identity.getRoles().stream()
+                .map(role -> {
+                    try { return Perfil.valueOf(role); }
+                    catch (IllegalArgumentException e) { return null; }
+                })
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        usuario.setPerfis(perfis.isEmpty() ? List.of(Perfil.ROLE_USER) : perfis);
+
         usuarioRepository.persist(usuario);
-
-        try {
-            String keycloakId = keycloakService.registrarUsuario(dto.email(), dto.senha(), "ROLE_USER");
-            if (keycloakId != null) {
-                usuario.setKeycloakId(keycloakId);
-            }
-        } catch (Exception e) {
-            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.email(), e.getMessage());
-        }
-    }
-
-    @Override
-    @Transactional
-    public void cadastrarCompleto(CadastroCompletoRequestDTO dto) {
-        if (pessoaFisicaRepository.findByEmail(dto.email()) != null) {
-            throw new ValidationException("email", "Email já cadastrado");
-        }
-
-        Usuario usuario = new Usuario();
-        usuario.setEmail(dto.email());
-        usuario.setSenha(BCrypt.hashpw(dto.senha(), BCrypt.gensalt()));
-        usuario.setPerfis(List.of(Perfil.ROLE_USER));
-        usuarioRepository.persist(usuario);
-
-        PessoaFisica pf = new PessoaFisica();
-        pf.setNome(dto.nome());
-        pf.setSobrenome(dto.sobrenome());
-        pf.setCpf(dto.cpf());
-        pf.setEmail(dto.email());
-        pf.setTelefone(dto.telefone());
-        pf.setDataNascimento(dto.dataNascimento());
-        pf.setUsuario(usuario);
-        pessoaFisicaRepository.persist(pf);
 
         ListaDesejos lista = new ListaDesejos();
         lista.setUsuario(usuario);
         listaDesejosRepository.persist(lista);
 
-        try {
-            String keycloakId = keycloakService.registrarUsuario(dto.email(), dto.senha(), "ROLE_USER");
-            if (keycloakId != null) {
-                usuario.setKeycloakId(keycloakId);
-            }
-        } catch (Exception e) {
-            LOG.warnf("Não foi possível sincronizar usuário '%s' com o Keycloak: %s", dto.email(), e.getMessage());
-        }
+        return usuario;
     }
 
     @Override
+    @Transactional
     public UsuarioResponseDTO buscarDadosLogado(String login) {
-        Usuario usuario = usuarioRepository.find("email", login).firstResult();
-        if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
+        Usuario usuario = garantirUsuarioLocal(login);
         PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(login);
         return new UsuarioResponseDTO(
             usuario.getId(),
@@ -115,8 +87,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void editarDados(String login, EditarUsuarioRequestDTO dto) {
-        Usuario usuario = usuarioRepository.find("email", login).firstResult();
-        if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
+        Usuario usuario = garantirUsuarioLocal(login);
 
         PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(login);
         boolean novo = false;
@@ -126,9 +97,27 @@ public class UsuarioServiceImpl implements UsuarioService {
             novo = true;
         }
 
+        if (dto.email() != null && !dto.email().equals(usuario.getEmail())) {
+            PessoaFisica existente = pessoaFisicaRepository.findByEmail(dto.email());
+            if (existente != null && !existente.getUsuario().getId().equals(usuario.getId())) {
+                throw new ValidationException("email", "Email já cadastrado");
+            }
+            usuario.setEmail(dto.email());
+            pf.setEmail(dto.email());
+            usuarioRepository.persist(usuario);
+            if (usuario.getKeycloakId() != null) {
+                try {
+                    keycloakService.atualizarEmail(usuario.getKeycloakId(), dto.email());
+                } catch (Exception e) {
+                    LOG.warnf("Não foi possível atualizar e-mail no Keycloak para '%s': %s", login, e.getMessage());
+                }
+            }
+        } else if (dto.email() != null) {
+            pf.setEmail(dto.email());
+        }
+
         if (dto.nome() != null) pf.setNome(dto.nome());
         if (dto.sobrenome() != null) pf.setSobrenome(dto.sobrenome());
-        if (dto.email() != null) pf.setEmail(dto.email());
         if (dto.telefone() != null) pf.setTelefone(dto.telefone());
         if (dto.cpf() != null) pf.setCpf(dto.cpf());
         if (dto.dataNascimento() != null) pf.setDataNascimento(dto.dataNascimento());
@@ -137,22 +126,44 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    @Transactional
-    public void alterarSenha(String login, AlterarSenhaRequestDTO dto) {
-        Usuario usuario = usuarioRepository.find("email", login).firstResult();
-        if (usuario == null) throw new jakarta.ws.rs.NotFoundException("Usuário não encontrado");
-        if (!BCrypt.checkpw(dto.senhaAtual(), usuario.getSenha())) {
-            throw new ValidationException("senhaAtual", "Senha incorreta");
-        }
-        usuario.setSenha(BCrypt.hashpw(dto.novaSenha(), BCrypt.gensalt()));
-        usuarioRepository.persist(usuario);
+    public List<UsuarioResponseDTO> listarTodos(int page, int size) {
+        return usuarioRepository.findAll().page(page, size).list().stream()
+                .map(u -> {
+                    PessoaFisica pf = pessoaFisicaRepository.findByUsuarioEmail(u.getEmail());
+                    return new UsuarioResponseDTO(
+                        u.getId(),
+                        u.getEmail(),
+                        pf != null ? pf.getNome() : null,
+                        pf != null ? pf.getEmail() : null
+                    );
+                })
+                .toList();
+    }
 
-        try {
+    @Override
+    @Transactional
+    public void atualizarUsuarioAdmin(Long id, AtualizarUsuarioAdminRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id);
+        if (usuario == null) throw new NotFoundException("Usuário não encontrado");
+
+        if (dto.perfis() != null) {
+            List<Perfil> novosPerfis = dto.perfis().stream().map(p -> {
+                try {
+                    return Perfil.valueOf(p);
+                } catch (IllegalArgumentException e) {
+                    throw new ValidationException("perfis", "Perfil inválido: " + p);
+                }
+            }).toList();
+            usuario.setPerfis(novosPerfis);
             if (usuario.getKeycloakId() != null) {
-                keycloakService.atualizarSenha(usuario.getKeycloakId(), dto.novaSenha());
+                try {
+                    keycloakService.atualizarRoles(usuario.getKeycloakId(), dto.perfis());
+                } catch (Exception e) {
+                    LOG.warnf("Não foi possível atualizar roles no Keycloak para usuário id %d: %s", id, e.getMessage());
+                }
             }
-        } catch (Exception e) {
-            LOG.warnf("Não foi possível atualizar senha no Keycloak para '%s': %s", login, e.getMessage());
         }
+
+        usuarioRepository.persist(usuario);
     }
 }

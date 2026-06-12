@@ -1,8 +1,8 @@
 package br.unitins.tp1.projeto.resource;
 
-import br.unitins.tp1.projeto.dto.AlterarSenhaRequestDTO;
-import br.unitins.tp1.projeto.dto.CadastroCompletoRequestDTO;
-import br.unitins.tp1.projeto.dto.CadastroSimplesRequestDTO;
+import java.util.List;
+
+import br.unitins.tp1.projeto.dto.AtualizarUsuarioAdminRequestDTO;
 import br.unitins.tp1.projeto.dto.EditarUsuarioRequestDTO;
 import br.unitins.tp1.projeto.dto.UsuarioResponseDTO;
 import br.unitins.tp1.projeto.service.UsuarioService;
@@ -10,11 +10,13 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -33,26 +35,6 @@ public class UsuarioResource {
 
     @Inject
     JsonWebToken jwt;
-
-    @POST
-    @Path("/cadastro-simples")
-    @Operation(summary = "Cadastro simples", description = "Registra um novo usuário apenas com e-mail e senha, sem dados pessoais completos")
-    @APIResponse(responseCode = "201", description = "Usuário cadastrado com sucesso")
-    @APIResponse(responseCode = "400", description = "Dados inválidos ou e-mail já cadastrado")
-    public Response cadastrarSimples(@Valid CadastroSimplesRequestDTO dto) {
-        service.cadastrarSimples(dto);
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    @POST
-    @Path("/cadastro-completo")
-    @Operation(summary = "Cadastro completo", description = "Registra um novo usuário com todos os dados pessoais (nome, CPF, data de nascimento, telefone)")
-    @APIResponse(responseCode = "201", description = "Usuário cadastrado com sucesso")
-    @APIResponse(responseCode = "400", description = "Dados inválidos ou e-mail/CPF já cadastrado")
-    public Response cadastrarCompleto(@Valid CadastroCompletoRequestDTO dto) {
-        service.cadastrarCompleto(dto);
-        return Response.status(Response.Status.CREATED).build();
-    }
 
     @GET
     @Path("/me")
@@ -76,15 +58,29 @@ public class UsuarioResource {
         return Response.noContent().build();
     }
 
-    @PUT
-    @Path("/me/senha")
-    @RolesAllowed("ROLE_USER")
-    @Operation(summary = "Alterar senha do usuário autenticado", description = "Altera a senha do usuário autenticado mediante confirmação da senha atual")
-    @APIResponse(responseCode = "204", description = "Senha alterada com sucesso")
-    @APIResponse(responseCode = "400", description = "Senha atual incorreta ou nova senha inválida")
+    @GET
+    @RolesAllowed("ROLE_ADMIN")
+    @Operation(summary = "Listar usuários (admin)", description = "Retorna a lista paginada de todos os usuários cadastrados")
+    @APIResponse(responseCode = "200", description = "Operação realizada com sucesso")
     @APIResponse(responseCode = "401", description = "Não autenticado")
-    public Response alterarSenha(@Valid AlterarSenhaRequestDTO dto) {
-        service.alterarSenha(jwt.getName(), dto);
+    @APIResponse(responseCode = "403", description = "Acesso negado")
+    public List<UsuarioResponseDTO> listarTodos(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+        return service.listarTodos(page, size);
+    }
+
+    @PUT
+    @Path("/{id}")
+    @RolesAllowed("ROLE_ADMIN")
+    @Operation(summary = "Atualizar usuário (admin)", description = "Atualiza perfis e dados de um usuário pelo ID")
+    @APIResponse(responseCode = "204", description = "Usuário atualizado com sucesso")
+    @APIResponse(responseCode = "400", description = "Dados inválidos")
+    @APIResponse(responseCode = "401", description = "Não autenticado")
+    @APIResponse(responseCode = "403", description = "Acesso negado")
+    @APIResponse(responseCode = "404", description = "Usuário não encontrado")
+    public Response atualizarAdmin(@PathParam("id") Long id, @Valid AtualizarUsuarioAdminRequestDTO dto) {
+        service.atualizarUsuarioAdmin(id, dto);
         return Response.noContent().build();
     }
 }

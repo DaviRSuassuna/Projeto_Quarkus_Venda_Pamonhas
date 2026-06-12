@@ -49,10 +49,17 @@ public class CupomDescontoServiceImpl implements CupomDescontoService {
     }
 
     @Override
-    public CupomDescontoResponseDTO validarCodigo(String codigo) {
+    public CupomDescontoResponseDTO validarCodigo(String codigo, List<Long> pamonhaIds) {
         CupomDesconto cupom = cupomDescontoRepository.findByCodigo(codigo);
         if (cupom == null || cupom.getDataValidade().isBefore(LocalDate.now())) {
             throw new ValidationException("codigo", "Cupom inválido ou expirado");
+        }
+        if (!cupom.getPamonhas().isEmpty()) {
+            boolean temPamonhaValida = pamonhaIds != null && !pamonhaIds.isEmpty() &&
+                    cupom.getPamonhas().stream().anyMatch(p -> pamonhaIds.contains(p.getId()));
+            if (!temPamonhaValida) {
+                throw new ValidationException("codigo", "Cupom não é válido para os itens selecionados");
+            }
         }
         return toResponseDTO(cupom);
     }

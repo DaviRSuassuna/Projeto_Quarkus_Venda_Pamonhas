@@ -58,6 +58,26 @@ public class EnderecoServiceImpl implements EnderecoService {
 
     @Override
     @Transactional
+    public EnderecoResponseDTO atualizar(String login, Long id, EnderecoRequestDTO dto) {
+        Endereco endereco = enderecoRepository.findById(id);
+        if (endereco == null) throw new jakarta.ws.rs.NotFoundException("Endereço não encontrado");
+        if (!endereco.getPessoaFisica().getUsuario().getEmail().equals(login)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        Cidade cidade = cidadeRepository.findById(dto.cidadeId());
+        if (cidade == null) throw new ValidationException("cidadeId", "Cidade não encontrada");
+        endereco.setRua(dto.rua());
+        endereco.setNumero(dto.numero());
+        endereco.setComplemento(dto.complemento());
+        endereco.setBairro(dto.bairro());
+        endereco.setCep(dto.cep());
+        endereco.setCidade(cidade);
+        enderecoRepository.persist(endereco);
+        return toResponseDTO(endereco);
+    }
+
+    @Override
+    @Transactional
     public void deletar(String login, Long id) {
         Endereco endereco = enderecoRepository.findById(id);
         if (endereco == null) throw new jakarta.ws.rs.NotFoundException("Endereço não encontrado");

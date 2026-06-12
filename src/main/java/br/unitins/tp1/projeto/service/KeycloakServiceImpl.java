@@ -6,12 +6,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -141,37 +143,6 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     @Override
-    public void atualizarSenha(String keycloakId, String novaSenha) {
-        try {
-            String adminToken = obterAdminToken();
-            String url = baseUrl + "/admin/realms/" + realm + "/users/" + keycloakId + "/reset-password";
-
-            Map<String, Object> payload = Map.of(
-                "type", "password",
-                "value", novaSenha,
-                "temporary", false
-            );
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + adminToken)
-                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 204) {
-                LOG.infof("Senha atualizada no Keycloak para usuário id: %s", keycloakId);
-            } else {
-                LOG.warnf("Falha ao atualizar senha no Keycloak. Status: %d", response.statusCode());
-            }
-        } catch (Exception e) {
-            LOG.errorf(e, "Erro ao atualizar senha no Keycloak para usuário id: %s", keycloakId);
-        }
-    }
-
-    @Override
     public void deletarUsuario(String keycloakId) {
         try {
             String adminToken = obterAdminToken();
@@ -194,4 +165,81 @@ public class KeycloakServiceImpl implements KeycloakService {
             LOG.errorf(e, "Erro ao remover usuário do Keycloak. id: %s", keycloakId);
         }
     }
+
+    @Override
+    public void atualizarEmail(String keycloakId, String novoEmail) {
+        try {
+            String adminToken = obterAdminToken();
+            String url = baseUrl + "/admin/realms/" + realm + "/users/" + keycloakId;
+
+            Map<String, Object> payload = Map.of("username", novoEmail, "email", novoEmail);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + adminToken)
+                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200 || response.statusCode() == 204) {
+                LOG.infof("E-mail atualizado no Keycloak para usuário id: %s", keycloakId);
+            } else {
+                LOG.warnf("Falha ao atualizar e-mail no Keycloak. Status: %d, Body: %s",
+                        response.statusCode(), response.body());
+            }
+        } catch (Exception e) {
+            LOG.errorf(e, "Erro ao atualizar e-mail no Keycloak para usuário id: %s", keycloakId);
+        }
+    }
+
+    @Override
+    public void atualizarRoles(String keycloakId, List<String> roles) {
+        try {
+            String adminToken = obterAdminToken();
+
+            // Busca roles atuais
+            String mappingsUrl = baseUrl + "/admin/realms/" + realm + "/users/" + keycloakId + "/role-mappings/realm";
+            HttpRequest getRolesRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(mappingsUrl))
+                    .header("Authorization", "Bearer " + adminToken)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> getRolesResponse = httpClient.send(getRolesRequest, HttpResponse.BodyHandlers.ofString());
+
+            // Remove roles ROLE_* atuais
+            if (getRolesResponse.statusCode() == 200) {
+                JsonNode rolesArray = objectMapper.readTree(getRolesResponse.body());
+                List<JsonNode> rolesToRemove = new ArrayList<>();
+                for (JsonNode roleNode : rolesArray) {
+                    String roleName = roleNode.get("name").asText();
+                    if (roleName.startsWith("ROLE_")) {
+                        rolesToRemove.add(roleNode);
+                    }
+                }
+                if (!rolesToRemove.isEmpty()) {
+                    String removeBody = objectMapper.writeValueAsString(rolesToRemove);
+                    HttpRequest deleteRequest = HttpRequest.newBuilder()
+                            .uri(URI.create(mappingsUrl))
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", "Bearer " + adminToken)
+                            .method("DELETE", HttpRequest.BodyPublishers.ofString(removeBody))
+                            .build();
+                    httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+                    LOG.infof("Roles removidas do usuário Keycloak '%s'", keycloakId);
+                }
+            }
+
+            // Atribui novas roles
+            for (String roleName : roles) {
+                atribuirRole(adminToken, keycloakId, roleName);
+            }
+
+        } catch (Exception e) {
+            LOG.errorf(e, "Erro ao atualizar roles do usuário Keycloak '%s'", keycloakId);
+        }
+    }
+
 }

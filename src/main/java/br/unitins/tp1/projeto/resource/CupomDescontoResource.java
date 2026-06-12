@@ -20,6 +20,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -61,12 +62,14 @@ public class CupomDescontoResource {
     @GET
     @Path("/validar/{codigo}")
     @RolesAllowed("ROLE_USER")
-    @Operation(summary = "Validar cupom por código", description = "Valida se um cupom de desconto é válido e não está expirado")
+    @Operation(summary = "Validar cupom por código", description = "Valida se um cupom de desconto é válido, não está expirado e se aplica aos itens informados")
     @APIResponse(responseCode = "200", description = "Cupom válido")
-    @APIResponse(responseCode = "400", description = "Cupom inválido ou expirado")
+    @APIResponse(responseCode = "400", description = "Cupom inválido, expirado ou não aplicável aos itens")
     @APIResponse(responseCode = "401", description = "Não autenticado")
-    public CupomDescontoResponseDTO validar(@PathParam("codigo") String codigo) {
-        return service.validarCodigo(codigo);
+    public CupomDescontoResponseDTO validar(
+            @PathParam("codigo") String codigo,
+            @QueryParam("pamonhaIds") List<Long> pamonhaIds) {
+        return service.validarCodigo(codigo, pamonhaIds);
     }
 
     @DELETE

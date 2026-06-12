@@ -1,6 +1,6 @@
 -- Import inicial de dados
-INSERT INTO usuario (id, email, senha, data_cadastro) VALUES
-(1, 'admin@pamonhas.com', '$2a$10$P0..VOZ8wzas1xrY7wPcEOhNi8gMhURNJKSQrge/7zzhLyaPRKh1i', NOW());
+INSERT INTO usuario (id, email, data_cadastro) VALUES
+(1, 'admin@pamonhas.com', NOW());
 
 INSERT INTO usuario_perfis (usuario_id, perfil) VALUES
 (1, 'ROLE_ADMIN');

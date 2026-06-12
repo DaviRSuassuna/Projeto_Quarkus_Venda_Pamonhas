@@ -11,5 +11,7 @@ public interface EnderecoService {
 
     EnderecoResponseDTO criar(String login, EnderecoRequestDTO dto);
 
+    EnderecoResponseDTO atualizar(String login, Long id, EnderecoRequestDTO dto);
+
     void deletar(String login, Long id);
 }

@@ -14,6 +14,7 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -58,6 +59,20 @@ public class EnderecoResource {
     public Response criar(@Valid EnderecoRequestDTO dto) {
         EnderecoResponseDTO response = service.criar(jwt.getName(), dto);
         return Response.status(Response.Status.CREATED).entity(response).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @RolesAllowed("ROLE_USER")
+    @Transactional
+    @Operation(summary = "Atualizar endereço", description = "Atualiza um endereço existente do usuário autenticado")
+    @APIResponse(responseCode = "200", description = "Endereço atualizado com sucesso")
+    @APIResponse(responseCode = "400", description = "Dados inválidos")
+    @APIResponse(responseCode = "401", description = "Não autenticado")
+    @APIResponse(responseCode = "403", description = "Acesso negado — endereço pertence a outro usuário")
+    @APIResponse(responseCode = "404", description = "Endereço não encontrado")
+    public Response atualizar(@PathParam("id") Long id, @Valid EnderecoRequestDTO dto) {
+        return Response.ok(service.atualizar(jwt.getName(), id, dto)).build();
     }
 
     @DELETE

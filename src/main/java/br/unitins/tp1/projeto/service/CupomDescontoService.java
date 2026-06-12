@@ -11,7 +11,7 @@ public interface CupomDescontoService {
 
     List<CupomDescontoResponseDTO> listarTodos(int page, int size);
 
-    CupomDescontoResponseDTO validarCodigo(String codigo);
+    CupomDescontoResponseDTO validarCodigo(String codigo, List<Long> pamonhaIds);
 
     void deletar(Long id);
 }

@@ -20,9 +20,6 @@ public class Usuario extends DefaultEntity {
     @Column(name = "email", unique = true)
     private String email;
 
-    @Column(name = "senha")
-    private String senha;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_perfis", joinColumns = @JoinColumn(name = "usuario_id"))
     @Enumerated(EnumType.STRING)
@@ -38,14 +35,6 @@ public class Usuario extends DefaultEntity {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
     }
 
     public List<Perfil> getPerfis() {
